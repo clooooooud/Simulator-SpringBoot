@@ -1,0 +1,40 @@
+<sae_hardware>
+  <module is_top="0" name="SUB_SYS" typeHash="0x2c2f4bba">
+    <elements>
+      <element count="1" in_num="5" name="BUS" out_num="2" type="AXIBus" typeHash="0x6f2779e2" />
+      <element count="1" in_num="0" name="DSP0" out_num="1" type="DSP" typeHash="0x11f92d" />
+      <element count="1" in_num="0" name="DSP1" out_num="1" type="DSP" typeHash="0x11f92d" />
+      <element count="1" in_num="0" name="DSP2" out_num="1" type="DSP" typeHash="0x11f92d" />
+      <element count="1" in_num="0" name="DSP3" out_num="1" type="DSP" typeHash="0x11f92d" />
+      <element count="1" in_num="1" name="SL2" out_num="0" type="MEMORY" typeHash="0x6c630721" />
+    </elements>
+    <connections>
+      <connection name="C_0" source="DSP0" sourceHash="0x9328237" source_id="0" source_port="axi_out" target="BUS" targetHash="0x117424" target_id="0" target_port="axi_in0" />
+      <connection name="C_1" source="DSP1" sourceHash="0x9328238" source_id="0" source_port="axi_out" target="BUS" targetHash="0x117424" target_id="0" target_port="axi_in1" />
+      <connection name="C_2" source="DSP2" sourceHash="0x9328239" source_id="0" source_port="axi_out" target="BUS" targetHash="0x117424" target_id="0" target_port="axi_in2" />
+      <connection name="C_3" source="DSP3" sourceHash="0x932823a" source_id="0" source_port="axi_out" target="BUS" targetHash="0x117424" target_id="0" target_port="axi_in3" />
+      <connection name="C_4" source="BUS" sourceHash="0x117424" source_id="0" source_port="axi_out0" target="SL2" targetHash="0x15e301" target_id="0" target_port="axi_in0" />
+    </connections>
+    <exports>
+      <export export_name="axi_in" original="BUS" originalHash="0x117424" original_id="0" port="axi_in4" type="in" />
+      <export export_name="axi_out" original="BUS" originalHash="0x117424" original_id="0" port="axi_out1" type="out" />
+    </exports>
+  </module>
+  <module is_top="1" name="Demo" typeHash="0x93747ef">
+    <elements>
+      <element count="1" in_num="2" name="MainBus" out_num="3" type="AXIBus" typeHash="0x6f2779e2" />
+      <element count="1" in_num="1" name="DDR0" out_num="0" type="DDR" typeHash="0x11f182" />
+    </elements>
+    <components>
+      <component count="1" is_top="0" name="SUB_SYS0" type="SUB_SYS" typeHash="0x2c2f4bba" />
+      <component count="1" is_top="0" name="SUB_SYS1" type="SUB_SYS" typeHash="0x2c2f4bba" />
+    </components>
+    <connections>
+      <connection name="C_5" source="SUB_SYS0" sourceHash="0x1c33c05e" source_id="0" source_port="axi_out" target="MainBus" targetHash="0x68c81b4f" target_id="0" target_port="axi_in0" />
+      <connection name="C_6" source="SUB_SYS1" sourceHash="0x1c33c05f" source_id="0" source_port="axi_out" target="MainBus" targetHash="0x68c81b4f" target_id="0" target_port="axi_in1" />
+      <connection name="C_7" source="MainBus" sourceHash="0x68c81b4f" source_id="0" source_port="axi_out0" target="SUB_SYS0" targetHash="0x1c33c05e" target_id="0" target_port="axi_in" />
+      <connection name="C_8" source="MainBus" sourceHash="0x68c81b4f" source_id="0" source_port="axi_out1" target="SUB_SYS1" targetHash="0x1c33c05f" target_id="0" target_port="axi_in" />
+      <connection name="C_9" source="MainBus" sourceHash="0x68c81b4f" source_id="0" source_port="axi_out2" target="DDR0" targetHash="0x92e95b6" target_id="0" target_port="axi_in" />
+    </connections>
+  </module>
+</sae_hardware>
