@@ -1,6 +1,5 @@
 package com.simulator.simulator.XMLLoader.task;
 
-public enum TaskStatus {
-
-
+public enum TaskStatus{
+    WAIT,EXECUTE,FINISH
 }

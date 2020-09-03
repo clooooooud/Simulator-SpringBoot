@@ -1,8 +1,12 @@
 package com.simulator.simulator.resousce;
 
 import com.simulator.simulator.XMLLoader.task.DataInstance;
+import com.simulator.simulator.report.DMAReport;
+import com.simulator.simulator.report.DSPReport;
+import com.simulator.simulator.report.ReportInterFace;
 import com.simulator.simulator.timeCnter.myTime;
 
+import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -46,11 +50,15 @@ class DMATask {
     }
 }
 
-public class DMA extends Thread{
+public class DMA extends Thread implements ReportInterFace {
     BlockingQueue<DMATask> taskQueue = new LinkedBlockingDeque<>();
     BlockingQueue<DMATask> taskSubmitted = new LinkedBlockingDeque<>();
-    int dmaSpeed = 1;
+    int dmaSpeed = 500;
     boolean run = true;
+
+    public LinkedList<DMAReport> dmaReports = new LinkedList<>();
+    public int totalDmaSize = 0;
+    public int curSize = 0;
 
     int globalTime = 0;
     int activeTime = 0;
@@ -61,7 +69,8 @@ public class DMA extends Thread{
 
     synchronized public void submit(DataInstance data, int src, int target)  {
         DMATask dmaTask = new DMATask(data,src,target);
-
+        totalDmaSize += data.total_size;
+        curSize += data.total_size;
 
         try {
             if(taskSubmitted.contains(dmaTask))return;
@@ -106,7 +115,7 @@ public class DMA extends Thread{
                     int testTime = 1;
 
                     //execute
-                    TimeUnit.SECONDS.sleep(2);
+                    TimeUnit.MILLISECONDS.sleep(executeTime);
                     ResourcesManager.getResourcesManager().dmaSave(myClusterId,dmaTask.data);
 //                    System.out.println("save:" + dmaTask.data.dataName);
 
@@ -117,6 +126,9 @@ public class DMA extends Thread{
 
                     if(globalTime > myTime.getTime()) myTime.setTime(globalTime);
 
+                    //执行完毕，减去
+                    curSize -= dmaTask.data.total_size;
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -126,5 +138,17 @@ public class DMA extends Thread{
 
     public boolean checkIfTaskSubmitted(DataInstance DataInstance) {
         return taskQueue.contains(new DMATask(DataInstance,0,0));
+    }
+
+    @Override
+    public String getReport() {
+        StringBuilder sb = new StringBuilder();
+
+        for(DMAReport dmaReport:dmaReports){
+            sb.append(dmaReport.toString());
+            sb.append('\n');
+        }
+
+        return sb.toString();
     }
 }

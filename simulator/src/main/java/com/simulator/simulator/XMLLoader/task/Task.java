@@ -1,11 +1,14 @@
 package com.simulator.simulator.XMLLoader.task;
 
+import com.simulator.simulator.report.TaskReport;
 import com.simulator.simulator.scheduleManager.TaskManager;
 import com.simulator.simulator.timeCnter.NewTimer;
 
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+
 
 /**
  * cost：开销
@@ -24,7 +27,24 @@ public class Task extends Thread{
     public int startTime = 0;
     public int job_inst_idx_inside = 0;
 
+    //graphSchedule
+    public int clusterId = -1;
+    //输入数据总量
+    public int dataInCnt = 0;
+
+    //用于菜鸡任务执行数据
+    public TaskReport taskReport;
+
     boolean isFinish = false;
+    private TaskStatus taskStatus = TaskStatus.WAIT;
+
+    public TaskStatus getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(TaskStatus taskStatus) {
+        this.taskStatus = taskStatus;
+    }
 
     //任务实例属性
     public int job_inst_idx;
@@ -49,6 +69,9 @@ public class Task extends Thread{
         this.job_inst_idx_inside = job_inst_idx_inside;
         job_inst_idx = id;
         id++;
+
+        taskReport = new TaskReport(name,job_inst_idx,job_inst_idx_inside);
+
     }
 
     public LinkedList<DataForTask> getDataIn() {
@@ -123,7 +146,7 @@ public class Task extends Thread{
 
     public void finishTask(){
         long finishTime = System.currentTimeMillis() - NewTimer.getBeginTime();
-        System.out.println(this.name +  ":ins "+ this.job_inst_idx_inside +"(" + this.job_inst_idx + ")" + " finish in time:" + finishTime);
+//        System.out.println(this.name +  ":ins "+ this.job_inst_idx_inside +"(" + this.job_inst_idx + ")" + " finish in time:" + finishTime);
         this.isFinish = true;
     }
 

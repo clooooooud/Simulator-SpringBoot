@@ -7,6 +7,10 @@ import com.simulator.simulator.XMLLoader.System.SubSystem;
 import com.simulator.simulator.XMLLoader.Util.UppaalReadUtil;
 import com.simulator.simulator.XMLLoader.task.DataInstance;
 import com.simulator.simulator.XMLLoader.task.Task;
+import com.simulator.simulator.XMLLoader.task.TaskDiagram;
+import com.simulator.simulator.XMLLoader.task.TaskStatus;
+import com.simulator.simulator.scheduleAlgorithm.graphSchedule.OffChipMem;
+import com.simulator.simulator.scheduleManager.TaskManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -19,11 +23,9 @@ public class ResourcesManager extends Thread{
     List<Cluster> clusterList = new CopyOnWriteArrayList<>();
     List<Thread> components = new ArrayList<>();
     static ComponentStructure componentStructure = UppaalReadUtil.uppaalComponentReader();
-    static {
-        System.out.println(componentStructure);
-    }
 
     Queue<Task> queue = new ConcurrentLinkedQueue<>();
+    Queue<Task> candidateQueue= new ConcurrentLinkedQueue<>();
 
      public void getDate(int myClusterId, Task task) {
         Cluster cluster = clusterList.get(myClusterId);
@@ -93,21 +95,74 @@ public class ResourcesManager extends Thread{
     }
 
     public void submit(Task task){
-
         queue.add(task);
+    }
+
+    public void submitTaskGraph(TaskDiagram taskDiagram){
+        LinkedList<Task> globalTaskList = taskDiagram.getGlobalTaskList();
+        schedule(taskDiagram,clusterList.size());
+        candidateQueue.addAll(globalTaskList);
+        updateQueue();
+    }
+
+    private void schedule(TaskDiagram taskDiagram,int clusterNum){
+        OffChipMem offChipMem = new OffChipMem();
+        offChipMem.schedule(taskDiagram,clusterNum);
+    }
+
+    public void updateQueue(){
+         for(Task task:candidateQueue){
+             if(!task.getTaskStatus().equals(TaskStatus.WAIT))continue;
+             if(TaskManager.checkDependency(task)){
+                 queue.add(task);
+                 task.setTaskStatus(TaskStatus.EXECUTE);
+             }
+         }
     }
 
     int indexTest = 0;
     private void execute(Task task){
+
+        //负载均衡
 //        Arrays.sort(dsps,(d1,d2)->{
 //            return d1.getQueue().size() - d2.getQueue().size();
 //        });
 //
 //        dsps[0].submit(task);
 
-//        Cluster cluster = clusterList.get((indexTest++)%2);
-        Cluster cluster = clusterList.get(0);
+        //轮训
+        Cluster cluster = clusterList.get((indexTest++)%2);
+
+        //全部在1
+//        Cluster cluster = clusterList.get(0);
+
+        //片外访存
+//        Cluster cluster = clusterList.get(task.clusterId);
         cluster.submit(task);
+
+        //贪心
+//        int[] clusterCnt = new int[clusterList.size()];
+//
+//        for(DataInstance d:task.getDataInsIn()){
+//            for(Cluster c:clusterList){
+//                if(c.checkData(d)){
+//                    clusterCnt[c.clusterId] += d.total_size;
+//                    break;
+//                }
+//            }
+//        }
+//
+//        int tmpIdx = -1,tmpSize = 0;
+//        for(int i = 0;i < clusterList.size();i++){
+//            if(clusterCnt[i] > tmpSize){
+//                tmpSize = clusterCnt[i];
+//                tmpIdx = i;
+//            }
+//        }
+//        if(tmpIdx == -1)tmpIdx = (indexTest++)%2;
+//
+//        Cluster cluster = clusterList.get(tmpIdx);
+//        cluster.submit(task);
 
     }
 
@@ -118,6 +173,7 @@ public class ResourcesManager extends Thread{
                 Task task = queue.remove();
                 execute(task);
             }
+//            updateQueue();
         }
     }
 

@@ -30,13 +30,6 @@ public class TaskManager {
         return taskDiagram.getGlobalTaskList();
     }
 
-    public static void main(String[] args) {
-        TaskDiagram taskDiagram = UppaalReadUtil.uppaalTaskReader();
-
-        LinkedList<Task> globalTaskList = taskDiagram.getGlobalTaskList();
-
-        System.out.println(globalTaskList.get(1).job_inst_idx);
-    }
 
     static public void finishTask(int taskId){
         lock.writeLock().lock();
@@ -50,18 +43,21 @@ public class TaskManager {
     synchronized static public boolean checkDependency(Task task){
         int taskId = task.job_inst_idx;
         LinkedList<Integer> dependencies = taskDiagram.getTaskDependencies().get(taskId);
-//        if(taskId == 1){
-//            for(int dependencyId : dependencies){
-//                System.out.println(dependencyId);
+
+//        taskDiagram.report();
+//        for(int p = 0;p < getGlobalTaskList().size();p++){
+//            Task task1 = getGlobalTaskList().get(p);
+//            if(task1.name.equals("Task2")){
+//                LinkedList<Integer> dependencies1 = taskDiagram.getTaskDependencies().get(task1.getJob_inst_idx());
+//                for(int dependencyId:dependencies1){
+//                    System.out.println(task1.name + "|"+task1.job_inst_idx_inside + " wait for " + getGlobalTaskList().get(dependencyId).name+"("+getGlobalTaskList().get(dependencyId).job_inst_idx_inside +")");
+//                }
 //            }
-//
-//            System.out.println(task.getDataIn());
-//            System.out.println("---------check task1----------");
 //        }
 
         for(int dependencyId : dependencies){
             if(!globalTaskList.get(dependencyId).ifFinish()){
-              if(task.name.equals("Task1"))System.out.println(taskId + " wait for " + dependencyId);
+//              if(task.name.equals("Task2"))System.out.println(task.name + "|"+taskId + " wait for " + globalTaskList.get(dependencyId).name+"("+globalTaskList.get(dependencyId).job_inst_idx_inside +")");
                 return false;
             }
         }
@@ -71,13 +67,6 @@ public class TaskManager {
     synchronized static public void schedule(Task task){
         //把任务转交给调度器
         FIFO.getInstance().enQueue(task);
-//        System.out.println(task.job_inst_idx + "to FIFO");
     }
-
-    @Test
-    public void test01(){
-        LinkedList<Integer> dependencies = taskDiagram.getTaskDependencies().get(1);
-    }
-
 
 }

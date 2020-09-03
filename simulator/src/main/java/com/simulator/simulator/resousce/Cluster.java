@@ -4,6 +4,8 @@ import com.simulator.simulator.XMLLoader.System.ModuleElement;
 import com.simulator.simulator.XMLLoader.System.SubSystem;
 import com.simulator.simulator.XMLLoader.task.DataInstance;
 import com.simulator.simulator.XMLLoader.task.Task;
+import com.simulator.simulator.report.ClusterReport;
+import com.simulator.simulator.report.ReportInterFace;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -11,14 +13,17 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class Cluster {
+public class Cluster implements ReportInterFace {
     List<Memory> memoryList = new CopyOnWriteArrayList<>();
     List<DSP> dspList = new CopyOnWriteArrayList<>();
     List<FPGA> fpgaList = new CopyOnWriteArrayList<>();
     List<DMA> dmaList = new CopyOnWriteArrayList<>();
 
     static int ID = 0;
-    int clusterId = 0;
+    public int clusterId = 0;
+
+    public LinkedList<ClusterReport> clusterReports = new LinkedList<>();
+    public int totalCost = 0;
 
     public Cluster() {
         dmaList.add(new DMA(clusterId));
@@ -85,14 +90,17 @@ public class Cluster {
             }
             while(getDataInMem(DataInstance) == null){
                 try {
-                    TimeUnit.SECONDS.sleep(1);
+                    TimeUnit.MILLISECONDS.sleep(50);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
 
-
+    synchronized public boolean checkData(DataInstance dataInstance){
+        Memory hitMemory = getDataInMem(dataInstance);
+        return hitMemory != null;
     }
 
     private boolean checkIfTaskSubmitted(DataInstance DataInstance) {
@@ -158,6 +166,8 @@ public class Cluster {
             return d1.getQueue().size() - d2.getQueue().size();
         });
 
+        totalCost += task.cost;
+
         dspList.get(0).submit(task);
     }
 
@@ -165,5 +175,17 @@ public class Cluster {
         int memId = memSchedule();
         Memory memory = memoryList.get(memId);
         memory.save(data);
+    }
+
+    @Override
+    public String getReport() {
+         StringBuilder sb = new StringBuilder();
+
+         for(ClusterReport clusterReport:clusterReports){
+             sb.append(clusterReport.toString());
+             sb.append('\n');
+         }
+
+         return sb.toString();
     }
 }

@@ -1,6 +1,8 @@
 package com.simulator.simulator.resousce;
 
 import com.simulator.simulator.XMLLoader.task.Task;
+import com.simulator.simulator.report.DSPReport;
+import com.simulator.simulator.report.ReportInterFace;
 import com.simulator.simulator.timeCnter.myTime;
 
 import java.util.LinkedList;
@@ -9,7 +11,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class DSP extends Thread {
+
+
+public class DSP extends Thread implements ReportInterFace {
     private boolean run = true;
     private int globalTime = 0;
     private int idleTime = 0;
@@ -17,7 +21,13 @@ public class DSP extends Thread {
     //单位是GHz
     private double DSPSpeed = 1.3;
 
-    private int newIdleTime = 0;
+    private int totalIdleTime = 0;
+    private int totalBusyTime = 0;
+    private int totalDataWaitingTime = 0;
+
+    public LinkedList<DSPReport> dspReports = new LinkedList<>();
+    public int totalCost = 0;
+    public int curCost = 0;
 
     private ResourcesStatus resourcesStatus = ResourcesStatus.IDLE;
 
@@ -35,8 +45,16 @@ public class DSP extends Thread {
         myClusterId = clusterId;
     }
 
-    public int getNewIdleTime() {
-        return newIdleTime;
+    public int getTotalBusyTime() {
+        return totalBusyTime;
+    }
+
+    public int getTotalDataWaitingTime() {
+        return totalDataWaitingTime;
+    }
+
+    public int getTotalIdleTime() {
+        return totalIdleTime;
     }
 
     public Queue<Task> getQueue() {
@@ -75,8 +93,9 @@ public class DSP extends Thread {
         //Refresh clock
         globalTime = myTime.getTime();
         try {
+
             double sleepTime = (double)task.cost/DSPSpeed;
-            TimeUnit.MILLISECONDS.sleep((int)sleepTime);
+            TimeUnit.MILLISECONDS.sleep((int)sleepTime/10);
 
 
 //            TimeUnit.SECONDS.sleep(1);
@@ -109,14 +128,30 @@ public class DSP extends Thread {
             while(true){
                 if(!queue.isEmpty()){
                     try {
-                        resourcesStatus = ResourcesStatus.BUSY;
-                        newIdleTime += System.currentTimeMillis() - idleCnt;
-
                         Task task = queue.take();
+
+                        resourcesStatus = ResourcesStatus.BUSY;
+                        totalIdleTime += System.currentTimeMillis() - idleCnt;
+                        //计算运行时间
+                        long beginTime = System.currentTimeMillis();
+                        task.taskReport.setBeginTime(beginTime);
+
+                        //获取数据并计算时间
                         getData(task);
+                        int dataWaitingTime = (int) (System.currentTimeMillis() - beginTime);
+                        totalDataWaitingTime += dataWaitingTime;
+                        task.taskReport.setDataWaitingTime(dataWaitingTime);
+
                         execute(task);
                         writeBack(task);
                         task.finishTask();
+                        ResourcesManager.getResourcesManager().updateQueue();
+
+                        //执行完毕，计算运行时间（后续封装）
+                        totalBusyTime += System.currentTimeMillis() - beginTime;
+                        task.taskReport.setFinishTime(System.currentTimeMillis());
+                        //执行完毕，减去cost
+                        curCost -= task.cost;
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -132,9 +167,24 @@ public class DSP extends Thread {
 
     public void submit(Task task) {
         try {
+            totalCost += task.cost;
+            curCost += task.cost;
+
             queue.put(task);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String getReport() {
+        StringBuilder sb = new StringBuilder();
+
+        for(DSPReport dspReport:dspReports){
+            sb.append(dspReport.toString());
+            sb.append('\n');
+        }
+
+        return sb.toString();
     }
 }

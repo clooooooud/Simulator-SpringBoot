@@ -7,6 +7,9 @@ public class DataInstance {
     public int total_size;
     public int data_inst_idx;
 
+    private Task taskIn;
+    private Task taskout;
+
     public DataInstance(String dataName, int mov_dir, int job_inst_idx, int total_size, int data_inst_idx) {
         this.dataName = dataName;
         this.mov_dir = mov_dir;

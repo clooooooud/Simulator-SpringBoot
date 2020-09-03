@@ -1,5 +1,7 @@
 package com.simulator.simulator.XMLLoader.task;
 
+import com.simulator.simulator.scheduleManager.TaskManager;
+
 import java.util.LinkedList;
 
 public class TaskDiagram {
@@ -85,52 +87,55 @@ public class TaskDiagram {
          */
         int taskNum = GlobalTaskList.size();
         int[][] dag = new int[taskNum+1][taskNum+1];
-        taskDependencies.add(new LinkedList<Integer>());
 
         for(int i = 0;i < taskNum;i++){
             Task task = GlobalTaskList.get(i);
-//            System.out.println(task.job_inst_idx + "||"+ i);
             //dependency of task i
-            taskDependencies.add(new LinkedList<Integer>());
+            LinkedList<Integer> singleTaskDependenciesList = new LinkedList<Integer>();
             //标记依赖有几个了
             int index = 0;
-            int id = task.getJob_inst_idx();
 
-//            LinkedList<DataForTask> dataIn = task.getDataIn();
-//            for(DataForTask d:dataIn){
-//                for(int j = 0;j < taskNum;j++){
-//                    if(i == j)continue;
-//                    LinkedList<DataForTask> checkDependency = GlobalTaskList.get(j).getDataOut();
-//                    int dependencyId = GlobalTaskList.get(j).getJob_inst_idx();
-//                    if(checkDependency.contains(d)){
-//                        //i依赖j
-//                        dag[task.getJob_inst_idx()][index] = dependencyId;
-//                        index++;
-//
-//                        //save in taskDependencies
-//                        taskDependencies.get(task.getJob_inst_idx()).add(dependencyId);
-//                    }
-//                }
-//            }
-
+            //task的输入datains
             LinkedList<DataInstance> dataIn = task.getDataInsIn();
             for(DataInstance d:dataIn){
                 for(int j = 0;j < taskNum;j++){
                     if(i == j)continue;
                     int dependencyId = GlobalTaskList.get(j).getJob_inst_idx();
                     //任务输出的数据实例
-                    LinkedList<DataInstance> checkDependency = GlobalTaskList.get(j).getDataInsOut();
-                    if(checkDependency.contains(d)){
+                    LinkedList<DataInstance> taskDataInsOut = GlobalTaskList.get(j).getDataInsOut();
+                    if(taskDataInsOut.contains(d)){
                         //i依赖j
                         dag[task.getJob_inst_idx()][index] = dependencyId;
                         index++;
 
                         //save in taskDependencies
-                        taskDependencies.get(task.getJob_inst_idx()).add(dependencyId);
+                        singleTaskDependenciesList.add(dependencyId);
+                        if(task.name.equals("Task2") && GlobalTaskList.get(dependencyId).name.equals("Task8")){
+                            System.out.println(d.dataName);
+                        }
+
                     }
                 }
             }
+            taskDependencies.add(singleTaskDependenciesList);
+
+
+//            if(task.name.equals("Task2") && task.job_inst_idx_inside == 3){
+//                for(int k:singleTaskDependenciesList){
+//                    System.out.println(getGlobalTaskList().get(k));
+//                }
+//            }
         }
+//        for(int p = 0;p < getGlobalTaskList().size();p++){
+//            Task task1 = getGlobalTaskList().get(p);
+//            if(task1.name.equals("Task2")){
+//                LinkedList<Integer> dependencies = getTaskDependencies().get(task1.getJob_inst_idx());
+//                for(int dependencyId:dependencies){
+//                        System.out.println(task1.name + "|"+task1.job_inst_idx_inside + " wait for " + getGlobalTaskList().get(dependencyId).name+"("+getGlobalTaskList().get(dependencyId).job_inst_idx_inside +")");
+//                }
+//            }
+//        }
+        System.out.println(this);
 
         StringBuilder taskInstanceDag = new StringBuilder();
         taskInstanceDag.append("{").append('\n');
@@ -183,5 +188,17 @@ public class TaskDiagram {
         }
         instanceTaskInSystem.append('\n');
         return instanceTaskInSystem.toString();
+    }
+
+    public void report(){
+        for(int p = 0;p < getGlobalTaskList().size();p++){
+            Task task1 = getGlobalTaskList().get(p);
+            if(task1.name.equals("Task2")){
+                LinkedList<Integer> dependencies = getTaskDependencies().get(task1.getJob_inst_idx());
+                for(int dependencyId:dependencies){
+                    System.out.println(task1.name + "|"+task1.job_inst_idx_inside + " wait for " + getGlobalTaskList().get(dependencyId).name+"("+getGlobalTaskList().get(dependencyId).job_inst_idx_inside +")");
+                }
+            }
+        }
     }
 }
