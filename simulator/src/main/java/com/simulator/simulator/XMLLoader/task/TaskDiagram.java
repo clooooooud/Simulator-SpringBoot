@@ -1,7 +1,5 @@
 package com.simulator.simulator.XMLLoader.task;
 
-import com.simulator.simulator.scheduleManager.TaskManager;
-
 import java.util.LinkedList;
 
 public class TaskDiagram {
@@ -86,14 +84,15 @@ public class TaskDiagram {
          * 以实例为单位构建dag
          */
         int taskNum = GlobalTaskList.size();
-        int[][] dag = new int[taskNum+1][taskNum+1];
+//        int[][] dag = new int[taskNum+1][taskNum+1];
+        LinkedList<LinkedList<Integer>> dag = new LinkedList<>();
 
         for(int i = 0;i < taskNum;i++){
             Task task = GlobalTaskList.get(i);
             //dependency of task i
             LinkedList<Integer> singleTaskDependenciesList = new LinkedList<Integer>();
             //标记依赖有几个了
-            int index = 0;
+//            int index = 0;
 
             //task的输入datains
             LinkedList<DataInstance> dataIn = task.getDataInsIn();
@@ -105,56 +104,39 @@ public class TaskDiagram {
                     LinkedList<DataInstance> taskDataInsOut = GlobalTaskList.get(j).getDataInsOut();
                     if(taskDataInsOut.contains(d)){
                         //i依赖j
-                        dag[task.getJob_inst_idx()][index] = dependencyId;
-                        index++;
+//                        dag[task.getJob_inst_idx()][index] = dependencyId;
+//                        index++;
 
                         //save in taskDependencies
                         singleTaskDependenciesList.add(dependencyId);
-                        if(task.name.equals("Task2") && GlobalTaskList.get(dependencyId).name.equals("Task8")){
-                            System.out.println(d.dataName);
-                        }
-
+//                        if(task.name.equals("Task2") && GlobalTaskList.get(dependencyId).name.equals("Task8")){
+//                            System.out.println(d.dataName);
+//                        }
                     }
                 }
             }
             taskDependencies.add(singleTaskDependenciesList);
-
-
-//            if(task.name.equals("Task2") && task.job_inst_idx_inside == 3){
-//                for(int k:singleTaskDependenciesList){
-//                    System.out.println(getGlobalTaskList().get(k));
-//                }
-//            }
         }
-//        for(int p = 0;p < getGlobalTaskList().size();p++){
-//            Task task1 = getGlobalTaskList().get(p);
-//            if(task1.name.equals("Task2")){
-//                LinkedList<Integer> dependencies = getTaskDependencies().get(task1.getJob_inst_idx());
-//                for(int dependencyId:dependencies){
-//                        System.out.println(task1.name + "|"+task1.job_inst_idx_inside + " wait for " + getGlobalTaskList().get(dependencyId).name+"("+getGlobalTaskList().get(dependencyId).job_inst_idx_inside +")");
+
+//        taskInstanceDag.append("{").append('\n');
+//        for(int i = 0;i <taskNum + 1;i++){
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("{{");
+//            for(int j = 0;j < taskNum +1;j++){
+//                if(j != taskNum){
+//                    sb.append(dag[i][j]).append(",");
+//                }else {
+//                    sb.append(dag[i][j]);
+//                    if(i != taskNum)sb.append("}},");
+//                    else sb.append("}}");
 //                }
 //            }
+//            taskInstanceDag.append(sb).append('\n');
 //        }
-        System.out.println(this);
+//        taskInstanceDag.append("};").append('\n');
 
         StringBuilder taskInstanceDag = new StringBuilder();
-        taskInstanceDag.append("{").append('\n');
-        for(int i = 0;i <taskNum + 1;i++){
-            StringBuilder sb = new StringBuilder();
-            sb.append("{{");
-            for(int j = 0;j < taskNum +1;j++){
-                if(j != taskNum){
-                    sb.append(dag[i][j]).append(",");
-                }else {
-                    sb.append(dag[i][j]);
-                    if(i != taskNum)sb.append("}},");
-                    else sb.append("}}");
-                }
-            }
-            taskInstanceDag.append(sb).append('\n');
-        }
-        taskInstanceDag.append("};").append('\n');
-        return taskInstanceDag.toString();
+        return "图塞不下";
     }
 
     //获取Task在System中实例化的语句

@@ -32,7 +32,7 @@ public class Task extends Thread{
     //输入数据总量
     public int dataInCnt = 0;
 
-    //用于菜鸡任务执行数据
+    //用于采集任务执行数据
     public TaskReport taskReport;
 
     boolean isFinish = false;
@@ -55,12 +55,14 @@ public class Task extends Thread{
     public LinkedList<DataInstance> dataInsIn = new LinkedList<>();
     public LinkedList<DataInstance> dataInsOut = new LinkedList<>();
 
-    static int id = 0;
+    public static int id = 0;
+
+    public int graphId;
 
     public Task() {
     }
 
-    public Task(String name, int knrlType, int instCnt, int cost, int property,int job_inst_idx_inside) {
+    public Task(String name, int knrlType, int instCnt, int cost, int property,int job_inst_idx_inside,int graphId) {
         this.name = name;
         this.knrlType = knrlType;
         this.instCnt = instCnt;
@@ -72,6 +74,7 @@ public class Task extends Thread{
 
         taskReport = new TaskReport(name,job_inst_idx,job_inst_idx_inside);
 
+        this.graphId = graphId;
     }
 
     public LinkedList<DataForTask> getDataIn() {
@@ -157,7 +160,7 @@ public class Task extends Thread{
             //waiting for task
             sleep(this.startTime);
             //check dependency
-            while(!TaskManager.checkDependency(this)){
+            while(!TaskManager.getInstance().getTaskGraph(graphId).checkDependency(this)){
                 TimeUnit.SECONDS.sleep(1);
 //                if(job_inst_idx == 12 || job_inst_idx == 3)System.out.println(job_inst_idx + " dependency not satisfy");
             }
@@ -166,7 +169,7 @@ public class Task extends Thread{
 //            if(job_inst_idx == 12)finishTask();
 
             //Enter Schedule queue
-            TaskManager.schedule(this);
+            TaskManager.getInstance().getTaskGraph(graphId).schedule(this);
 
             //begin run
 

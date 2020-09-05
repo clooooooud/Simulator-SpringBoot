@@ -29,6 +29,8 @@ public class OffChipMem implements GraphSchedule{
 
     @Override
     public void schedule(TaskDiagram taskDiagram,int clusterNum) {
+        ClusterNode.idCnt = 0;
+
         this.taskDiagram = taskDiagram;
         this.clusterNum = clusterNum;
         this.clusterDataCnt = new ClusterNode[clusterNum];
@@ -42,7 +44,6 @@ public class OffChipMem implements GraphSchedule{
         for(Task t:taskDiagram.getGlobalTaskList()){
             globalTaskList.add(t);
         }
-
 
         globalTaskList.sort((t1, t2) -> {
             int dataIn1 = 0, dataIn2 = 0;
@@ -63,6 +64,7 @@ public class OffChipMem implements GraphSchedule{
     private int setCluster(Task task){
         if(task.clusterId != -1)return task.clusterId;
 
+//        System.out.println(taskDiagram.getTaskDependencies().size());
         LinkedList<Integer> dependentTask = taskDiagram.getTaskDependencies().get(task.getJob_inst_idx());
         LinkedList<DataInstance> dataIn = task.getDataInsIn();
         LinkedList<Task> globalTaskList  = taskDiagram.getGlobalTaskList();
@@ -98,7 +100,9 @@ public class OffChipMem implements GraphSchedule{
         });
 
         task.clusterId = clusterDataCnt[0].id;
-        clusterMap.get(task.clusterId).load += task.cost;
+        ClusterNode clusterNode = clusterMap.get(task.clusterId);
+        if(clusterNode == null)System.out.println("-----------------------"+task.clusterId);
+        clusterNode.load += task.cost;
         return task.clusterId;
 
     }

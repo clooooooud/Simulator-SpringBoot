@@ -8,24 +8,20 @@ import com.simulator.simulator.resousce.DMA;
 import com.simulator.simulator.resousce.DSP;
 import com.simulator.simulator.resousce.ResourcesManager;
 import com.simulator.simulator.scheduleAlgorithm.FIFO;
+import com.simulator.simulator.scheduleManager.TaskManager;
 import com.simulator.simulator.timeCnter.NewTimer;
 import org.junit.Test;
-import com.simulator.simulator.scheduleManager.TaskManager;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args){
         ExecutorService threadPool = Executors.newCachedThreadPool();
-        LinkedList<Task> globalTaskList = TaskManager.getGlobalTaskList();
+        LinkedList<Task> globalTaskList = TaskManager.getInstance().getTaskGraph(1).getGlobalTaskList();
         NewTimer.getBeginTime();
 
         long begin = System.currentTimeMillis();
@@ -34,10 +30,15 @@ public class Main {
 //        for (Task t :globalTaskList) {
 //            threadPool.execute(t);
 //        }
-
-
         ResourcesManager resourcesManager = ResourcesManager.getResourcesManager();
-        resourcesManager.submitTaskGraph(TaskManager.getTaskDiagram());
+        resourcesManager.setClusterNum(16);
+
+        //设置图周期
+        TaskManager.getInstance().setPeriod(new int[]{100,1,1,4,1,100});
+
+        //提交任务,改为按照时序提交
+//        resourcesManager.submitTaskGraph(TaskManager.getInstance().getTaskGraph(1).getTaskDiagram());
+        threadPool.execute(new NewTimer());
 
         for(int i = 0;i < globalTaskList.size();i++){
             System.out.println(i + "||" + globalTaskList.get(i).clusterId);
@@ -114,7 +115,7 @@ public class Main {
     }
 
     static private boolean allTaskFinish(){
-        LinkedList<Task> globalTaskList = TaskManager.getGlobalTaskList();
+        LinkedList<Task> globalTaskList = TaskManager.getInstance().getTaskGraph(1).getGlobalTaskList();
         for(Task t:globalTaskList){
             if(!t.ifFinish())return false;
         }

@@ -1,72 +1,63 @@
 package com.simulator.simulator.scheduleManager;
 
 import com.simulator.simulator.XMLLoader.Util.UppaalReadUtil;
-import com.simulator.simulator.XMLLoader.task.Task;
-import com.simulator.simulator.XMLLoader.task.TaskDiagram;
-import com.simulator.simulator.scheduleAlgorithm.FIFO;
-import org.junit.Test;
+import com.simulator.simulator.resousce.ResourcesManager;
 
 import java.util.LinkedList;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-
+/**
+ * 管理当前的所有任务图，不一定所有都被提交，有的可能被重复提交
+ */
 public class TaskManager {
 
-    static TaskDiagram taskDiagram = UppaalReadUtil.uppaalTaskReader();
-    static LinkedList<Task> globalTaskList = taskDiagram.getGlobalTaskList();
-    static String str = taskDiagram.getDiagramByInstance();
-//    static {
-//        System.out.println(str);
-//    }
+    /** graph集合 */
+    LinkedList<TaskGraph> graphList= new LinkedList<>();
 
-    static ReadWriteLock lock = new ReentrantReadWriteLock();
+    /**
+     * period:图的周期
+     */
+    int[] period;
+    int[] curRound;
 
-    public static TaskDiagram getTaskDiagram() {
-        return taskDiagram;
+    private static TaskManager taskGraph = null;
+
+    public TaskManager() {
+        graphList = UppaalReadUtil.uppaalTaskReader();
+        period = new int[graphList.size()];
+        curRound = new int[graphList.size()];
     }
 
-    public static LinkedList<Task> getGlobalTaskList() {
-        return taskDiagram.getGlobalTaskList();
+    public void setPeriod(int[] period) {
+        this.period = period;
     }
 
-
-    static public void finishTask(int taskId){
-        lock.writeLock().lock();
-
-        globalTaskList.get(taskId).finishTask();
-
-        lock.writeLock().unlock();
-    }
-
-
-    synchronized static public boolean checkDependency(Task task){
-        int taskId = task.job_inst_idx;
-        LinkedList<Integer> dependencies = taskDiagram.getTaskDependencies().get(taskId);
-
-//        taskDiagram.report();
-//        for(int p = 0;p < getGlobalTaskList().size();p++){
-//            Task task1 = getGlobalTaskList().get(p);
-//            if(task1.name.equals("Task2")){
-//                LinkedList<Integer> dependencies1 = taskDiagram.getTaskDependencies().get(task1.getJob_inst_idx());
-//                for(int dependencyId:dependencies1){
-//                    System.out.println(task1.name + "|"+task1.job_inst_idx_inside + " wait for " + getGlobalTaskList().get(dependencyId).name+"("+getGlobalTaskList().get(dependencyId).job_inst_idx_inside +")");
-//                }
-//            }
-//        }
-
-        for(int dependencyId : dependencies){
-            if(!globalTaskList.get(dependencyId).ifFinish()){
-//              if(task.name.equals("Task2"))System.out.println(task.name + "|"+taskId + " wait for " + globalTaskList.get(dependencyId).name+"("+globalTaskList.get(dependencyId).job_inst_idx_inside +")");
-                return false;
+    public static TaskManager getInstance(){
+        if(taskGraph == null){
+            synchronized (TaskManager.class){
+                if(taskGraph == null){
+                    taskGraph = new TaskManager();
+                }
             }
         }
-        return true;
+        return taskGraph;
     }
 
-    synchronized static public void schedule(Task task){
-        //把任务转交给调度器
-        FIFO.getInstance().enQueue(task);
+    public TaskGraph getTaskGraph(int id){
+        return graphList.get(id);
     }
 
+    public void updateTask() {
+        //更新TTI
+        for (int i = 0; i < graphList.size(); i++) {
+            curRound[i]++;
+        }
+
+        //更新任务
+        for (int i = 0; i < graphList.size(); i++) {
+            if(curRound[i] >= period[i]){
+                curRound[i] = 0;
+                ResourcesManager.getResourcesManager().submitTaskGraph(graphList.get(i).taskDiagram);
+            }
+        }
+    }
 }

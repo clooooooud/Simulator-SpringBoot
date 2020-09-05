@@ -18,9 +18,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ResourcesManager extends Thread{
 
-    DSP[] dsps;
     private static ResourcesManager resourcesManager;
     List<Cluster> clusterList = new CopyOnWriteArrayList<>();
+
+    /**
+     * 用于启动component
+     */
     List<Thread> components = new ArrayList<>();
     static ComponentStructure componentStructure = UppaalReadUtil.uppaalComponentReader();
 
@@ -37,9 +40,6 @@ public class ResourcesManager extends Thread{
         cluster.saveData(task);
     }
 
-    public DSP[] getDsps() {
-        return dsps;
-    }
 
     ResourcesManager(ComponentStructure componentStructure){
         //top system,equals to resourceManager
@@ -98,22 +98,35 @@ public class ResourcesManager extends Thread{
         queue.add(task);
     }
 
+    /**
+     * 接收提交的任务
+     * @param taskDiagram
+     */
     public void submitTaskGraph(TaskDiagram taskDiagram){
         LinkedList<Task> globalTaskList = taskDiagram.getGlobalTaskList();
+        System.out.println(clusterList.size());
         schedule(taskDiagram,clusterList.size());
+
+        //待调度队列入队
         candidateQueue.addAll(globalTaskList);
         updateQueue();
     }
 
+    /**
+     * 片外访存调度，接收整个图后分配cluster
+     * @param taskDiagram
+     * @param clusterNum
+     */
     private void schedule(TaskDiagram taskDiagram,int clusterNum){
         OffChipMem offChipMem = new OffChipMem();
+//        offChipMem.schedule(taskDiagram,clusterNum);
         offChipMem.schedule(taskDiagram,clusterNum);
     }
 
     public void updateQueue(){
          for(Task task:candidateQueue){
              if(!task.getTaskStatus().equals(TaskStatus.WAIT))continue;
-             if(TaskManager.checkDependency(task)){
+             if(TaskManager.getInstance().getTaskGraph(task.graphId).checkDependency(task)){
                  queue.add(task);
                  task.setTaskStatus(TaskStatus.EXECUTE);
              }
@@ -188,5 +201,23 @@ public class ResourcesManager extends Thread{
 
     public List<Cluster> getClusterList() {
         return clusterList;
+    }
+
+    /**
+     * 将Resources中cluster数量增加到num。subSystem类型默认（“SUB_SYS”）
+     * @param num
+     */
+    public void setClusterNum(int num) {
+        clusterList.clear();
+        for (int i = 0; i < num; i++) {
+            clusterList.add(new Cluster(componentStructure.getMap().get("SUB_SYS")));
+        }
+
+        for(Cluster cluster: clusterList){
+            components.addAll(cluster.getDmaList());
+            components.addAll(cluster.getDspList());
+            components.addAll(cluster.getFpgaList());
+        }
+
     }
 }

@@ -28,10 +28,10 @@ public class Dom4jTest {
     //建立任务结构
     @Test
     public void test02(){
-        TaskDiagram taskDiagram = UppaalReadUtil.uppaalTaskReader();
-        String taskInstanceDag = taskDiagram.getDiagramByInstance();
-
-        System.out.println(taskInstanceDag);
+//        TaskDiagram taskDiagram = UppaalReadUtil.uppaalTaskReader();
+//        String taskInstanceDag = taskDiagram.getDiagramByInstance();
+//
+//        System.out.println(taskInstanceDag);
 
 //        System.out.println(taskInstanceDag);
 //        UppaalWriteUtil.writeBack(taskDiagram,"new_demo_autowire01.xml");
