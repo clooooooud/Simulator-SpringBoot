@@ -144,13 +144,13 @@ public class ResourcesManager extends Thread{
 //        dsps[0].submit(task);
 
         //轮训
-        Cluster cluster = clusterList.get((indexTest++)%2);
+//        Cluster cluster = clusterList.get((indexTest++)%2);
 
         //全部在1
 //        Cluster cluster = clusterList.get(0);
 
         //片外访存
-//        Cluster cluster = clusterList.get(task.clusterId);
+        Cluster cluster = clusterList.get(task.clusterId);
         cluster.submit(task);
 
         //贪心
@@ -209,6 +209,8 @@ public class ResourcesManager extends Thread{
      */
     public void setClusterNum(int num) {
         clusterList.clear();
+        //重置cluster，DSP，DMA，Mem编号
+        Cluster.ID = 0;Memory.id = 0;DSP.id=0;DMA.id = 0;
         for (int i = 0; i < num; i++) {
             clusterList.add(new Cluster(componentStructure.getMap().get("SUB_SYS")));
         }

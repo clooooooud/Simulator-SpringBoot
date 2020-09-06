@@ -63,7 +63,7 @@ public class DMA extends Thread implements ReportInterFace {
     int globalTime = 0;
     int activeTime = 0;
 
-    static int id = 0;
+    public static int id = 0;
     private int dmaId = 0;
     private int myClusterId = 0;
 

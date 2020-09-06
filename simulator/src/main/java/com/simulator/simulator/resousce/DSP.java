@@ -21,11 +21,22 @@ public class DSP extends Thread implements ReportInterFace {
     //单位是GHz
     private double DSPSpeed = 1.3;
 
+    /**
+     * 时间统计：
+     *      totalIdleTime：闲置时间
+     *      totalBusyTime：工作时间
+     *      totalDataWaitingTime：数据等待时间
+     */
     private int totalIdleTime = 0;
     private int totalBusyTime = 0;
     private int totalDataWaitingTime = 0;
-
     public LinkedList<DSPReport> dspReports = new LinkedList<>();
+
+    /**
+     * 开销统计（cycle）：
+     *      totalCost：总开销
+     *      curCost：当前负载
+     */
     public int totalCost = 0;
     public int curCost = 0;
 
@@ -36,12 +47,22 @@ public class DSP extends Thread implements ReportInterFace {
     private BlockingQueue<Task> queue = new ArrayBlockingQueue<Task>(30);
     private LinkedList<Integer> test = new LinkedList<>();
 
+    /**
+     * dsp总编号
+     */
     static int id = 0;
     private int dspId;
 
+    /**
+     * cluster内部DSP编号
+     */
+    public static int idInCluster = 0;
+    private int dspIdInCluster;
+
     public DSP(int clusterId){
-        dspId = id+1;
-        id++;
+        dspId = id;dspIdInCluster = idInCluster;
+        id++;idInCluster++;
+
         myClusterId = clusterId;
     }
 

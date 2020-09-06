@@ -101,7 +101,6 @@ public class OffChipMem implements GraphSchedule{
 
         task.clusterId = clusterDataCnt[0].id;
         ClusterNode clusterNode = clusterMap.get(task.clusterId);
-        if(clusterNode == null)System.out.println("-----------------------"+task.clusterId);
         clusterNode.load += task.cost;
         return task.clusterId;
 

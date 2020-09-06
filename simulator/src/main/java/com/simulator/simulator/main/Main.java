@@ -108,10 +108,6 @@ public class Main {
 
         threadPool.shutdown();
         System.out.println("end");
-
-
-
-
     }
 
     static private boolean allTaskFinish(){

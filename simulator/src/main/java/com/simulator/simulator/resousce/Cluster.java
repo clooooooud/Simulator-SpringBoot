@@ -19,7 +19,7 @@ public class Cluster implements ReportInterFace {
     List<FPGA> fpgaList = new CopyOnWriteArrayList<>();
     List<DMA> dmaList = new CopyOnWriteArrayList<>();
 
-    static int ID = 0;
+    public static int ID = 0;
     public int clusterId = 0;
 
     public LinkedList<ClusterReport> clusterReports = new LinkedList<>();
@@ -31,6 +31,8 @@ public class Cluster implements ReportInterFace {
 
     public Cluster(SubSystem subSystem) {
         clusterId = ID++;
+        //重置DSP编号
+        DSP.idInCluster = 0;
         LinkedList<ModuleElement> elements = subSystem.getElements();
 
         for(ModuleElement moduleElement:elements){
