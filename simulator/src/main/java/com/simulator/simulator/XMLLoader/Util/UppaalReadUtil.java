@@ -32,6 +32,7 @@ public class UppaalReadUtil {
             Iterator<Element> graphIterator = read.getRootElement().elementIterator();
 
             while (graphIterator.hasNext()){
+                //graph
                 Element graph = graphIterator.next();
 //                System.out.println(graph.getName());
                 int graphId = Integer.parseInt((String)graph.attribute("id").getData());
@@ -94,6 +95,7 @@ public class UppaalReadUtil {
                      *          <data_inst_idx value="0" />
                      */
                     while(proc_itemsIterator != null && proc_itemsIterator.hasNext()){
+                        //==================================================================================================
                         //一个Data模板（有多个实例）
                         Element proc_item = proc_itemsIterator.next();
                         String data_name = (String)proc_item.attribute("data_name").getData();
@@ -131,6 +133,8 @@ public class UppaalReadUtil {
                                 Task taskIns = TaskList.get(job_inst_idx);
                                 if(mov_dir == 0){
                                     taskIns.getDataInsIn().add(dataInstance);
+                                    //======================
+                                    System.out.println("111111111111111111111111");
                                 }else {
                                     taskIns.getDataInsOut().add(dataInstance);
                                 }

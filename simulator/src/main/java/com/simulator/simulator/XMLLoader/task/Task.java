@@ -52,6 +52,7 @@ public class Task extends Thread{
     public LinkedList<DataForTask> dataIn = new LinkedList<>();
     public LinkedList<DataForTask> dataOut = new LinkedList<>();
 
+    //输入输出的data实例
     public LinkedList<DataInstance> dataInsIn = new LinkedList<>();
     public LinkedList<DataInstance> dataInsOut = new LinkedList<>();
 
