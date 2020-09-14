@@ -14,11 +14,29 @@ public class TaskDiagram {
     public LinkedList<LinkedList<Integer>> taskDependencies = new LinkedList<>();
 
     public TaskDiagram(LinkedList<Task> globalTaskList, LinkedList<TaskModel> modelTaskList, LinkedList<Data> dataModelList) {
-
-
         GlobalTaskList = globalTaskList;
         this.modelTaskList = modelTaskList;
         this.dataModelList = dataModelList;
+    }
+
+    @Override
+    public TaskDiagram clone() throws CloneNotSupportedException {
+        LinkedList<Task> globalTaskListClone = new LinkedList<>();
+        for(Task t:GlobalTaskList){
+            globalTaskListClone.add(t.clone());
+        }
+
+        LinkedList<TaskModel> modelTaskListClone = new LinkedList<>();
+        for(TaskModel t:modelTaskList){
+            modelTaskListClone.add(t.clone());
+        }
+
+        LinkedList<Data> dataModelListClone = new LinkedList<>();
+        for(Data d:dataModelList){
+            dataModelListClone.add(d.clone());
+        }
+
+        return new TaskDiagram(globalTaskListClone,modelTaskListClone,dataModelListClone);
     }
 
     public LinkedList<LinkedList<Integer>> getTaskDependencies() {
@@ -175,10 +193,10 @@ public class TaskDiagram {
     public void report(){
         for(int p = 0;p < getGlobalTaskList().size();p++){
             Task task1 = getGlobalTaskList().get(p);
-            if(task1.name.equals("Task2")){
+            if(task1.taskName.equals("Task2")){
                 LinkedList<Integer> dependencies = getTaskDependencies().get(task1.getJob_inst_idx());
                 for(int dependencyId:dependencies){
-                    System.out.println(task1.name + "|"+task1.job_inst_idx_inside + " wait for " + getGlobalTaskList().get(dependencyId).name+"("+getGlobalTaskList().get(dependencyId).job_inst_idx_inside +")");
+                    System.out.println(task1.taskName + "|"+task1.job_inst_idx_inside + " wait for " + getGlobalTaskList().get(dependencyId).taskName +"("+getGlobalTaskList().get(dependencyId).job_inst_idx_inside +")");
                 }
             }
         }

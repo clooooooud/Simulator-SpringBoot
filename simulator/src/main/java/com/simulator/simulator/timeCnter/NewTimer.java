@@ -12,12 +12,16 @@ public class NewTimer extends Thread{
         return beginTime;
     }
 
+    public static double curTTI = 0;
+
     @Override
     public void run() {
         while(true){
-            TaskManager.getInstance().updateTask();
             try {
-                TimeUnit.SECONDS.sleep(50);
+                TimeUnit.MILLISECONDS.sleep(500);
+                curTTI = (System.currentTimeMillis() - beginTime)/(double)50000;
+//                System.out.println(curTTI);
+                TaskManager.getInstance().updateTask();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

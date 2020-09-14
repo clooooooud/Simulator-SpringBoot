@@ -63,6 +63,11 @@ public class Data {
     }
 
     @Override
+    public Data clone() throws CloneNotSupportedException {
+        return new Data(consumer_count,is_global,mem_type,name,producer, conusmer);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;

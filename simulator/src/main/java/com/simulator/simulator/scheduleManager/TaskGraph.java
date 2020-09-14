@@ -3,8 +3,8 @@ package com.simulator.simulator.scheduleManager;
 import com.simulator.simulator.XMLLoader.Util.UppaalReadUtil;
 import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.XMLLoader.task.TaskDiagram;
+import com.simulator.simulator.resousce.ResourcesManager;
 import com.simulator.simulator.scheduleAlgorithm.FIFO;
-import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -17,18 +17,20 @@ public class TaskGraph {
 
     TaskDiagram taskDiagram;
     LinkedList<Task> globalTaskList;
-    String str;
 
     public int graphId;
-    String graphName;
+    public String graphName;
 
-    public TaskGraph(TaskDiagram taskDiagram, int graphId, String graphName) {
+    public LinkedList<Integer> dependencyGraph = new LinkedList<>();
+
+    public TaskGraph(TaskDiagram taskDiagram, int graphId, String graphName,LinkedList<Integer> dependencyGraph) {
         this.taskDiagram = taskDiagram;
         globalTaskList = taskDiagram.getGlobalTaskList();
         taskDiagram.getDiagramByInstance();
 
         this.graphId = graphId;
         this.graphName = graphName;
+        this.dependencyGraph = dependencyGraph;
     }
 
     static ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -69,6 +71,7 @@ public class TaskGraph {
         for(int dependencyId : dependencies){
             if(!globalTaskList.get(dependencyId).ifFinish()){
 //              if(task.name.equals("Task2"))System.out.println(task.name + "|"+taskId + " wait for " + globalTaskList.get(dependencyId).name+"("+globalTaskList.get(dependencyId).job_inst_idx_inside +")");
+                System.out.println(task.taskName + "|"+taskId + " wait for " + globalTaskList.get(dependencyId).taskName+"("+globalTaskList.get(dependencyId).job_inst_idx_inside +")");
                 return false;
             }
         }
@@ -79,5 +82,10 @@ public class TaskGraph {
         //把任务转交给调度器
         FIFO.getInstance().enQueue(task);
     }
+
+    public void setDependency(int b) {
+        dependencyGraph.add(b);
+    }
+
 
 }

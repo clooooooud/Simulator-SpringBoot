@@ -178,14 +178,12 @@ public class UppaalReadUtil {
                     dataModelList.add(data);
                 }
                 TaskDiagram taskDiagram = new TaskDiagram(GlobalTaskList, modelTaskList, dataModelList);
-                TaskGraph taskManager = new TaskGraph(taskDiagram, graphId, graphName);
+                TaskGraph taskManager = new TaskGraph(taskDiagram, graphId, graphName,new LinkedList<>());
                 taskGraphList.add(taskManager);
             }
         } catch (DocumentException e) {
             e.printStackTrace();
         }
-
-
         return taskGraphList;
     }
 

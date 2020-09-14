@@ -1,7 +1,10 @@
 package com.simulator.simulator.scheduleManager;
 
+import com.google.gson.internal.$Gson$Preconditions;
 import com.simulator.simulator.XMLLoader.Util.UppaalReadUtil;
+import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.resousce.ResourcesManager;
+import com.simulator.simulator.timeCnter.NewTimer;
 
 import java.util.LinkedList;
 
@@ -16,18 +19,32 @@ public class TaskManager {
     /**
      * period:图的周期
      */
-    int[] period;
-    int[] curRound;
+    double[] period;
+    /** 图的下一个播报时间 */
+    double[] nextTime;
+    double[] ddl;
 
     private static TaskManager taskGraph = null;
 
     public TaskManager() {
         graphList = UppaalReadUtil.uppaalTaskReader();
-        period = new int[graphList.size()];
-        curRound = new int[graphList.size()];
+        period = new double[graphList.size()];
+        nextTime = new double[graphList.size()];
+
+        for(int i = 0;i < graphList.size();i++){
+            nextTime[i] = 0;
+        }
     }
 
-    public void setPeriod(int[] period) {
+    public double[] getDdl() {
+        return ddl;
+    }
+
+    public void setDdl(double[] ddl) {
+        this.ddl = ddl;
+    }
+
+    public void setPeriod(double[] period) {
         this.period = period;
     }
 
@@ -47,17 +64,35 @@ public class TaskManager {
     }
 
     public void updateTask() {
-        //更新TTI
-        for (int i = 0; i < graphList.size(); i++) {
-            curRound[i]++;
-        }
-
         //更新任务
         for (int i = 0; i < graphList.size(); i++) {
-            if(curRound[i] >= period[i]){
-                curRound[i] = 0;
-                ResourcesManager.getResourcesManager().submitTaskGraph(graphList.get(i).taskDiagram);
+            if(nextTime[i] < NewTimer.curTTI){
+                ResourcesManager.getResourcesManager().submitTaskGraph(graphList.get(i));
+                nextTime[i] += period[i];
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("任务图状态（单位：/DSP*TTI："+"\n");
+        for (TaskGraph taskGraph:graphList){
+            double sumCost = 0;
+            for (Task task:taskGraph.getGlobalTaskList()){
+                sumCost += task.cost;
+            }
+            stringBuilder.append("图：" + taskGraph.graphId + " 任务量: "+ (sumCost/650000) + "\n");
+        }
+        return stringBuilder.toString();
+    }
+
+    /**
+     * 图a依赖于图b
+     * @param a
+     * @param b
+     */
+    public void setDependency(int a,int b) {
+        graphList.get(a).setDependency(b);
     }
 }

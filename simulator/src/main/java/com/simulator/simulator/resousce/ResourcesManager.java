@@ -10,9 +10,12 @@ import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.XMLLoader.task.TaskDiagram;
 import com.simulator.simulator.XMLLoader.task.TaskStatus;
 import com.simulator.simulator.scheduleAlgorithm.graphSchedule.OffChipMem;
-import com.simulator.simulator.scheduleManager.TaskManager;
+import com.simulator.simulator.scheduleManager.TaskGraph;
+import com.simulator.simulator.scheduleManager.TaskGraphSubmitted;
+import com.simulator.simulator.timeCnter.NewTimer;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -29,6 +32,42 @@ public class ResourcesManager extends Thread{
 
     Queue<Task> queue = new ConcurrentLinkedQueue<>();
     Queue<Task> candidateQueue= new ConcurrentLinkedQueue<>();
+
+    /** 图候选队列与执行队列 */
+    List<TaskGraphSubmitted> graphList = new CopyOnWriteArrayList<>();
+    List<TaskGraphSubmitted> candidateGraphList= new CopyOnWriteArrayList<>();
+
+
+    /**
+     * 记录已提交的graph
+     *      submittedTaskGraph：存储list
+     */
+    List<Map<Integer,TaskGraphSubmitted>> submittedTaskGraph = new CopyOnWriteArrayList<>();
+    private int submitedGraphNum = 0;
+
+    /**
+     * 将候选队列中满足依赖的图刷新进队列
+     */
+    public void updateGraph() {
+        for(int i = 0;i < candidateGraphList.size();i++){
+            TaskGraphSubmitted taskGraphSubmitted = candidateGraphList.get(i);
+            if(taskGraphSubmitted.checkDependency()){
+//                System.out.println("graph " + taskGraphSubmitted.getTaskGraph().graphId + "满足依赖且入队");
+                taskGraphSubmitted.waitTime = System.currentTimeMillis() - NewTimer.getBeginTime();
+
+                LinkedList<Task> globalTaskList = taskGraphSubmitted.getTaskGraph().getGlobalTaskList();
+                candidateGraphList.remove(i--);
+
+                candidateQueue.addAll(globalTaskList);
+                updateQueue();
+            }
+        }
+
+    }
+
+    public List<Map<Integer,TaskGraphSubmitted>> getSubmittedTaskGraph() {
+        return submittedTaskGraph;
+    }
 
      public void getDate(int myClusterId, Task task) {
         Cluster cluster = clusterList.get(myClusterId);
@@ -82,11 +121,14 @@ public class ResourcesManager extends Thread{
 //        queue = new ConcurrentLinkedQueue<>();
 //    }
 
+    /**
+     * 用于获取RM的实例
+     * @return RM
+     */
     public static ResourcesManager getResourcesManager() {
         if(resourcesManager == null){
             synchronized(ResourcesManager.class){
                 if(resourcesManager == null){
-
                     resourcesManager = new ResourcesManager(componentStructure);
                 }
             }
@@ -100,16 +142,44 @@ public class ResourcesManager extends Thread{
 
     /**
      * 接收提交的任务
-     * @param taskDiagram
+     * @param taskGraph
      */
-    public void submitTaskGraph(TaskDiagram taskDiagram){
+    synchronized public void submitTaskGraph(TaskGraph taskGraph){
+
+        TaskGraphSubmitted taskGraphSubmitted = new TaskGraphSubmitted(taskGraph, submitedGraphNum++, ((double)System.currentTimeMillis()-(double)NewTimer.getBeginTime()));
+//        for (Task t:taskGraphSubmitted.getTaskGraph().getGlobalTaskList()){
+//            System.out.println(t.graphDdl);
+//        }
+
+        TaskDiagram taskDiagram = taskGraphSubmitted.getTaskGraph().getTaskDiagram();
         LinkedList<Task> globalTaskList = taskDiagram.getGlobalTaskList();
-        System.out.println(clusterList.size());
+
         schedule(taskDiagram,clusterList.size());
 
+        if(submittedTaskGraph.size() > (int) taskGraphSubmitted.submitTTI){
+            Map<Integer,TaskGraphSubmitted> taskGraphSubmittedInTTI = submittedTaskGraph.get((int) taskGraphSubmitted.submitTTI);
+            taskGraphSubmittedInTTI.put(taskGraph.graphId,taskGraphSubmitted);
+        }else{
+            Map<Integer,TaskGraphSubmitted> tmp = new ConcurrentHashMap<>();
+            tmp.put(taskGraph.graphId,taskGraphSubmitted);
+            submittedTaskGraph.add(tmp);
+        }
+
+        //图加入候选图队列
+        candidateGraphList.add(taskGraphSubmitted);
+        //更新任务队列
+        updateGraph();
+
         //待调度队列入队
-        candidateQueue.addAll(globalTaskList);
-        updateQueue();
+//        candidateQueue.addAll(globalTaskList);
+//        updateQueue();
+
+        //qos保障
+//        for(Cluster cluster:clusterList){
+//            for(DSP dsp:cluster.dspList){
+//                dsp.qosSort();
+//            }
+//        }
     }
 
     /**
@@ -124,10 +194,13 @@ public class ResourcesManager extends Thread{
     }
 
     public void updateQueue(){
+//        System.out.println(candidateQueue.size() + "候选队列长度");
          for(Task task:candidateQueue){
              if(!task.getTaskStatus().equals(TaskStatus.WAIT))continue;
-             if(TaskManager.getInstance().getTaskGraph(task.graphId).checkDependency(task)){
+             if(submittedTaskGraph.get(task.submittedTTI).get(task.taskGraphId).getTaskGraph().checkDependency(task)){
+//                 System.out.println(task.submittedGraphId);
                  queue.add(task);
+                 candidateQueue.remove(task);
                  task.setTaskStatus(TaskStatus.EXECUTE);
              }
          }
@@ -144,13 +217,14 @@ public class ResourcesManager extends Thread{
 //        dsps[0].submit(task);
 
         //轮训
-//        Cluster cluster = clusterList.get((indexTest++)%2);
+        Cluster cluster = clusterList.get((indexTest++)%16);
 
         //全部在1
 //        Cluster cluster = clusterList.get(0);
 
+
         //片外访存
-        Cluster cluster = clusterList.get(task.clusterId);
+//        Cluster cluster = clusterList.get(task.clusterId);
         cluster.submit(task);
 
         //贪心
@@ -164,7 +238,6 @@ public class ResourcesManager extends Thread{
 //                }
 //            }
 //        }
-//
 //        int tmpIdx = -1,tmpSize = 0;
 //        for(int i = 0;i < clusterList.size();i++){
 //            if(clusterCnt[i] > tmpSize){
@@ -184,6 +257,7 @@ public class ResourcesManager extends Thread{
         while(true){
             while(!queue.isEmpty()){
                 Task task = queue.remove();
+
                 execute(task);
             }
 //            updateQueue();
@@ -209,6 +283,7 @@ public class ResourcesManager extends Thread{
      */
     public void setClusterNum(int num) {
         clusterList.clear();
+        components.clear();
         //重置cluster，DSP，DMA，Mem编号
         Cluster.ID = 0;Memory.id = 0;DSP.id=0;DMA.id = 0;
         for (int i = 0; i < num; i++) {
@@ -221,5 +296,9 @@ public class ResourcesManager extends Thread{
             components.addAll(cluster.getFpgaList());
         }
 
+        System.out.println("finish setClusterNum");
+        for(Cluster cluster:clusterList){
+            System.out.println(cluster);
+        }
     }
 }

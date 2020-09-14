@@ -3,10 +3,10 @@ package com.simulator.simulator.resousce;
 import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.report.DSPReport;
 import com.simulator.simulator.report.ReportInterFace;
+import com.simulator.simulator.timeCnter.NewTimer;
 import com.simulator.simulator.timeCnter.myTime;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -44,7 +44,15 @@ public class DSP extends Thread implements ReportInterFace {
 
     private int activeTime = 0;
 
-    private BlockingQueue<Task> queue = new ArrayBlockingQueue<Task>(30);
+//    private PriorityQueue<Task> queue = new PriorityQueue<Task>(500,(t1,t2)->{
+//        if(t1.graphDdl < t2.graphDdl){
+//            return -1;
+//        }else{
+//            return 1;
+//        }
+//    });
+    private BlockingQueue<Task> queue = new ArrayBlockingQueue<Task>(200);
+    public BlockingQueue<Task> candidateQueue = new ArrayBlockingQueue<Task>(200);
     private LinkedList<Integer> test = new LinkedList<>();
 
     /**
@@ -111,6 +119,10 @@ public class DSP extends Thread implements ReportInterFace {
     }
 
     private void execute(Task task){
+//        if(task.taskName.equals("task83") ){
+//            System.out.println(task.job_inst_idx + "执行");
+//        }
+
         //Refresh clock
         globalTime = myTime.getTime();
         try {
@@ -121,8 +133,9 @@ public class DSP extends Thread implements ReportInterFace {
 
 //            TimeUnit.SECONDS.sleep(1);
 
-//            System.out.println(task.job_inst_idx + "finish by:" + dspId + "in" + Thread.currentThread().getName());
+//            if(task.taskName.equals("Task83"))System.out.println(task.job_inst_idx + "finish by:" + dspId + "in " + Thread.currentThread().getName());
 
+//            System.out.println(task.graphDdl);
             activeTime += 10;
             globalTime += 10;
             if(globalTime > myTime.getTime()){
@@ -147,12 +160,23 @@ public class DSP extends Thread implements ReportInterFace {
     public void run() {
         while(run){
             while(true){
-                if(!queue.isEmpty()){
+                if(!queue.isEmpty() || !candidateQueue.isEmpty()){
+//                    System.out.println(queue.size() + "||---------" + dspId);
                     try {
+                        if(queue.isEmpty()){
+                            TimeUnit.SECONDS.sleep(1);
+                            queue.addAll(candidateQueue);
+                            candidateQueue.clear();
+                        }
                         Task task = queue.take();
+
+                        if(task.taskName.equals("task83")&& task.job_inst_idx == 0){
+//                            System.out.println("dsp");
+                        }
 
                         resourcesStatus = ResourcesStatus.BUSY;
                         totalIdleTime += System.currentTimeMillis() - idleCnt;
+
                         //计算运行时间
                         long beginTime = System.currentTimeMillis();
                         task.taskReport.setBeginTime(beginTime);
@@ -173,7 +197,7 @@ public class DSP extends Thread implements ReportInterFace {
                         task.taskReport.setFinishTime(System.currentTimeMillis());
                         //执行完毕，减去cost
                         curCost -= task.cost;
-                    } catch (InterruptedException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -186,14 +210,23 @@ public class DSP extends Thread implements ReportInterFace {
         System.out.println("finishDSP");
     }
 
-    public void submit(Task task) {
+    synchronized public void submit(Task task) {
         try {
+//            System.out.println("DSP submit");
             totalCost += task.cost;
             curCost += task.cost;
+//            System.out.println(task);
+//            queue.put(task);
+            candidateQueue.put(task);
 
-            queue.put(task);
-        } catch (InterruptedException e) {
+//            System.out.println(queue.size());
+
+//            if(task.taskName.equals("task83")&& task.job_inst_idx == 0){
+//                System.out.println("dsp");
+//            }
+        } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("===================提交失败");
         }
     }
 
@@ -207,5 +240,43 @@ public class DSP extends Thread implements ReportInterFace {
         }
 
         return sb.toString();
+    }
+
+    public void qosSort() {
+        LinkedList<Task> list = new LinkedList<>();
+        while(!queue.isEmpty()){
+            try {
+                list.add(queue.take());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Collections.sort(list,new Comparator<Task>() {
+            public int compare(Task t1, Task t2) {
+                if(t1.graphDdl < t2.graphDdl){
+                    return -1;
+                }else {
+                    return 1;
+                }
+            }
+        });
+
+        for (int i = 0; i < list.size(); i++) {
+            try {
+                queue.put(list.get(i));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Dsp: " + dspId + "; ");
+
+        return stringBuilder.toString();
     }
 }

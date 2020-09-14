@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class Task extends Thread{
     //taskName,knrlType,instCnt,cost,priority,dataForTask,job_inst_idx,total_size,data_inst_idx
     //任务统一属性
-    public String name;
+    public String taskName;
     public int knrlType;
     public int instCnt;
     public int cost;
@@ -57,24 +57,40 @@ public class Task extends Thread{
 
     public static int id = 0;
 
-    public int graphId;
+    public int taskGraphId;
+    public double graphDdl;
+    public int submittedGraphId;
+    public int submittedTTI;
 
     public Task() {
     }
 
     public Task(String name, int knrlType, int instCnt, int cost, int property,int job_inst_idx_inside,int graphId) {
-        this.name = name;
+        this.taskName = name;
         this.knrlType = knrlType;
         this.instCnt = instCnt;
         this.cost = cost;
         this.property = property;
         this.job_inst_idx_inside = job_inst_idx_inside;
+        this.taskGraphId = graphId;
         job_inst_idx = id;
         id++;
 
         taskReport = new TaskReport(name,job_inst_idx,job_inst_idx_inside);
 
-        this.graphId = graphId;
+    }
+
+    public Task(String name, int knrlType, int instCnt, int cost, int property,int job_inst_idx_inside,int graphId,int job_inst_idx) {
+        this.taskName = name;
+        this.knrlType = knrlType;
+        this.instCnt = instCnt;
+        this.cost = cost;
+        this.property = property;
+        this.job_inst_idx_inside = job_inst_idx_inside;
+        this.job_inst_idx = job_inst_idx;
+        this.taskGraphId = graphId;
+
+        taskReport = new TaskReport(name,job_inst_idx,job_inst_idx_inside);
     }
 
     public LinkedList<DataForTask> getDataIn() {
@@ -110,9 +126,15 @@ public class Task extends Thread{
     }
 
     @Override
+    public Task clone() throws CloneNotSupportedException {
+        Task task = new Task(taskName, knrlType, instCnt, cost, property, job_inst_idx_inside, taskGraphId,job_inst_idx);
+        return task;
+    }
+
+    @Override
     public String toString() {
         return "Task{" +
-                "name='" + name + '\'' +
+                "name='" + taskName + '\'' +
                 ", knrlType=" + knrlType +
                 ", instCnt=" + instCnt +
                 ", cost=" + cost +
@@ -123,6 +145,16 @@ public class Task extends Thread{
                 '}';
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Task){
+            Task tmp = (Task)obj;
+            return tmp.job_inst_idx == job_inst_idx && tmp.taskGraphId == taskGraphId && tmp.graphDdl == graphDdl;
+
+        }else{
+            return false;
+        }
+    }
 
     /**
      * task2 = task(2,0,3,6);
@@ -160,7 +192,7 @@ public class Task extends Thread{
             //waiting for task
             sleep(this.startTime);
             //check dependency
-            while(!TaskManager.getInstance().getTaskGraph(graphId).checkDependency(this)){
+            while(!TaskManager.getInstance().getTaskGraph(taskGraphId).checkDependency(this)){
                 TimeUnit.SECONDS.sleep(1);
 //                if(job_inst_idx == 12 || job_inst_idx == 3)System.out.println(job_inst_idx + " dependency not satisfy");
             }
@@ -169,7 +201,7 @@ public class Task extends Thread{
 //            if(job_inst_idx == 12)finishTask();
 
             //Enter Schedule queue
-            TaskManager.getInstance().getTaskGraph(graphId).schedule(this);
+            TaskManager.getInstance().getTaskGraph(taskGraphId).schedule(this);
 
             //begin run
 

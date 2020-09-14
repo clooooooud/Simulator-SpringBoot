@@ -8,6 +8,7 @@ import com.simulator.simulator.report.ClusterReport;
 import com.simulator.simulator.report.ReportInterFace;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -72,6 +73,10 @@ public class Cluster implements ReportInterFace {
 
     public List<DMA> getDmaList() {
         return dmaList;
+    }
+
+    public List<Memory> getMemoryList() {
+        return memoryList;
     }
 
     int remainBusCapacity = 10;
@@ -163,14 +168,14 @@ public class Cluster implements ReportInterFace {
 
     }
 
+    int i = 0;
     public void submit(Task task) {
-        Collections.sort(dspList,(d1, d2)->{
-            return d1.getQueue().size() - d2.getQueue().size();
-        });
-
         totalCost += task.cost;
 
-        dspList.get(0).submit(task);
+//        Collections.sort(dspList, Comparator.comparingInt(d -> d.getQueue().size()));
+//        dspList.get(0).submit(task);
+
+        dspList.get(i++%4).submit(task);
     }
 
     public void dmaSave(DataInstance data){
@@ -189,5 +194,18 @@ public class Cluster implements ReportInterFace {
          }
 
          return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Cluster: " + clusterId + "状态");
+
+        for(DSP dsp:dspList){
+            stringBuilder.append(dsp);
+        }
+
+        return stringBuilder.toString();
+
     }
 }

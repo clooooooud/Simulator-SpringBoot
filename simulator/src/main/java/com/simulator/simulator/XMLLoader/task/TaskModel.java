@@ -47,6 +47,11 @@ public class TaskModel {
     }
 
     @Override
+    public TaskModel clone() throws CloneNotSupportedException {
+        return new TaskModel( name,  knrlType,  instCnt,  cost,  property);
+    }
+
+    @Override
     public String toString() {
         return "TaskModel{" +
                 "name='" + name + '\'' +

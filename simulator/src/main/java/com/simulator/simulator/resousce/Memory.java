@@ -1,13 +1,28 @@
 package com.simulator.simulator.resousce;
 
 import com.simulator.simulator.XMLLoader.task.DataInstance;
+import com.simulator.simulator.timeCnter.NewTimer;
 import com.simulator.simulator.timeCnter.myTime;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+class LRUNode{
+    double time;
+    DataInstance dataInstance;
+
+    public LRUNode(double time, DataInstance dataInstance) {
+        this.time = time;
+        this.dataInstance = dataInstance;
+    }
+}
 
 public class Memory {
     Map<DataInstance,Object> map = new ConcurrentHashMap<>();
+    List<LRUNode> LRUList = new CopyOnWriteArrayList<>();
+
     int myClusterId;
     static int id = 0;
     int memId = 0;
@@ -15,7 +30,15 @@ public class Memory {
     int globalTime = 0;
     int transportSpeed = 10;
 
-    DataInstance data7 = null;
+    /**
+     * capacity:容量上限
+     * curCapacity：当前容量
+     * peakValue: 用于计算峰值
+     * 当当前容量 > 容量上限：运行LRU
+     */
+    public int capacity = 1000000;
+    public int curCapacity = 0;
+    public int peakValue = 0;
 
     public Memory(int myClusterId) {
         this.myClusterId = myClusterId;
@@ -77,7 +100,20 @@ public class Memory {
 
     synchronized public void save(DataInstance data) {
         transportData(data);
+
+        while(curCapacity + data.total_size > capacity){
+            LRU();
+        }
         map.put(data,new Object());
-//        System.out.println(data.dataName+ "be saved");
+        LRUList.add(new LRUNode(System.currentTimeMillis() - NewTimer.getBeginTime(),data));
+
+        curCapacity += data.total_size;
+        peakValue = Math.max(curCapacity,peakValue);
+    }
+
+    public void LRU(){
+        LRUNode node = LRUList.remove(0);
+        map.remove(node.dataInstance);
+        curCapacity -= node.dataInstance.total_size;
     }
 }

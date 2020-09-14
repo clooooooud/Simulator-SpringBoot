@@ -9,6 +9,7 @@ import com.simulator.simulator.resousce.DSP;
 import com.simulator.simulator.resousce.ResourcesManager;
 import com.simulator.simulator.scheduleAlgorithm.FIFO;
 import com.simulator.simulator.scheduleManager.TaskManager;
+import com.simulator.simulator.scheduleManager.TaskUtils;
 import com.simulator.simulator.timeCnter.NewTimer;
 import org.junit.Test;
 
@@ -20,11 +21,11 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args){
-        ExecutorService threadPool = Executors.newCachedThreadPool();
-        LinkedList<Task> globalTaskList = TaskManager.getInstance().getTaskGraph(1).getGlobalTaskList();
+        ExecutorService threadPool = Executors.newFixedThreadPool(100);
+
         NewTimer.getBeginTime();
 
-        long begin = System.currentTimeMillis();
+        ReportUtil.begin = System.currentTimeMillis();
 
         //多线程运行task
 //        for (Task t :globalTaskList) {
@@ -34,20 +35,18 @@ public class Main {
         resourcesManager.setClusterNum(16);
 
         //设置图周期
-        TaskManager.getInstance().setPeriod(new int[]{100,1,1,4,1,100});
+        TaskManager.getInstance().setPeriod(new double[]{100,1,1,4,1,100});
+        TaskManager.getInstance().setDdl(new double[]{100,1.5,1.5,4,1,100});
+        //设置图依赖
+        TaskManager.getInstance().setDependency(1,4);
+        TaskManager.getInstance().setDependency(2,4);
+        TaskManager.getInstance().setDependency(3,4);
 
-        //提交任务,改为按照时序提交
-//        resourcesManager.submitTaskGraph(TaskManager.getInstance().getTaskGraph(1).getTaskDiagram());
-        threadPool.execute(new NewTimer());
 
-        for(int i = 0;i < globalTaskList.size();i++){
-            System.out.println(i + "||" + globalTaskList.get(i).clusterId);
-        }
-
+        System.out.println(TaskManager.getInstance());
 
         threadPool.execute(resourcesManager);
         threadPool.execute(FIFO.getInstance());
-
 
         //start all resources
         List<Thread> components = resourcesManager.getComponents();
@@ -58,65 +57,19 @@ public class Main {
         //start reporter
         threadPool.execute(new Reporter());
 
-        while(!allTaskFinish()){
-            try {
-                TimeUnit.SECONDS.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        //提交任务,改为按照时序提交
+//        resourcesManager.submitTaskGraph(TaskManager.getInstance().getTaskGraph(1).getTaskDiagram());
+        threadPool.execute(new NewTimer());
 
-        int simulateTime = (int) (System.currentTimeMillis() - begin);
-
-        int totalTaskCost = 0;
-        for(Cluster cluster :resourcesManager.getClusterList()){
-            List<DSP> dspList = cluster.getDspList();
-            totalTaskCost += cluster.totalCost;
-            for(DSP d : dspList){
-//                System.out.println(d.getDspId() + ":空闲时间" + (myTime.getTime() - d.getActiveTime()) + ",执行时间：" +d.getActiveTime());
-                double utilization = (double)d.getTotalBusyTime()/simulateTime;
-                System.out.println(d.getDspId() + ":执行时间" + d.getTotalBusyTime() + ",空闲时间：" +(simulateTime - d.getTotalBusyTime()) + ",数据等待时间：" + d.getTotalDataWaitingTime());
-                System.out.println("使用率：" + utilization*100 + "%");
-
-                //DSP report
-                String fileName = "DSP" + d.getDspId();
-                ReportUtil.writer(d,fileName);
-            }
-            for(DMA d : cluster.getDmaList()){
-                System.out.println("DMA:" + d.getDmaId() + ":搬运量： " + d.totalDmaSize);
-
-                //DMA report
-                String fileName = "DMA" + d.getDmaId();
-                ReportUtil.writer(d,fileName);
-            }
-        }
-
-        for(Cluster cluster :resourcesManager.getClusterList()){
-            double utilization = 100 * (double)cluster.totalCost/totalTaskCost;
-            System.out.println("cluster" + cluster.clusterId + "执行任务量：" + cluster.totalCost + " 占比：" + utilization + "%");
-
-            //Cluster report
-            String fileName = "Cluster" + cluster.clusterId;
-            ReportUtil.writer(cluster,fileName);
-        }
-
-        for(Task t:globalTaskList){
-            System.out.println(t.taskReport);
-        }
-
-        System.out.println(simulateTime);
-
-        threadPool.shutdown();
-        System.out.println("end");
+        System.out.println("===========================================================================================================================");
     }
 
-    static private boolean allTaskFinish(){
-        LinkedList<Task> globalTaskList = TaskManager.getInstance().getTaskGraph(1).getGlobalTaskList();
-        for(Task t:globalTaskList){
-            if(!t.ifFinish())return false;
-        }
-        return true;
-    }
+
 
 
     @Test

@@ -4,9 +4,14 @@ import com.simulator.simulator.resousce.Cluster;
 import com.simulator.simulator.resousce.DMA;
 import com.simulator.simulator.resousce.DSP;
 import com.simulator.simulator.resousce.ResourcesManager;
+import com.simulator.simulator.scheduleManager.TaskGraphSubmitted;
+import com.simulator.simulator.scheduleManager.TaskUtils;
 import com.simulator.simulator.timeCnter.NewTimer;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Reporter extends Thread{
@@ -15,11 +20,14 @@ public class Reporter extends Thread{
 
     @Override
     public void run() {
+        int cnt = 0;
         while (true){
             try {
-                time = (int) (System.currentTimeMillis() - NewTimer.getBeginTime());
-                report();
-                TimeUnit.MILLISECONDS.sleep(500);
+//                time = (int) (System.currentTimeMillis() - NewTimer.getBeginTime());
+//                report();
+                TimeUnit.SECONDS.sleep(25);
+                System.out.println(ReportUtil.reportV1());
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -65,6 +73,8 @@ public class Reporter extends Thread{
 //            System.out.println(dspReport);
         }
     }
+
+
 
 
 }
