@@ -4,9 +4,13 @@ import com.google.gson.internal.$Gson$Preconditions;
 import com.simulator.simulator.XMLLoader.Util.UppaalReadUtil;
 import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.resousce.ResourcesManager;
+import com.simulator.simulator.timeCnter.GraphGenerator;
 import com.simulator.simulator.timeCnter.NewTimer;
 
 import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 管理当前的所有任务图，不一定所有都被提交，有的可能被重复提交
@@ -15,6 +19,7 @@ public class TaskManager {
 
     /** graph集合 */
     LinkedList<TaskGraph> graphList= new LinkedList<>();
+    LinkedList<Queue<TaskGraph>> graphFactory = new LinkedList<>();
 
     /**
      * period:图的周期
@@ -33,9 +38,19 @@ public class TaskManager {
 
         for(int i = 0;i < graphList.size();i++){
             nextTime[i] = 0;
+            Queue<TaskGraph> q = new LinkedList<>();
+            graphFactory.add(q);
         }
+        System.out.println("d"+graphFactory.size());
+        ExecutorService threadPool = Executors.newFixedThreadPool(2);
+        threadPool.execute(new GraphGenerator(graphList, graphFactory));
     }
-
+    public boolean isReady(){
+        for(int i = 0;i < graphFactory.size();i++){
+            if(graphFactory.get(i).size() == 0) return false;
+        }
+        return true;
+    }
     public double[] getDdl() {
         return ddl;
     }
@@ -67,7 +82,8 @@ public class TaskManager {
         //更新任务
         for (int i = 0; i < graphList.size(); i++) {
             if(nextTime[i] < NewTimer.curTTI){
-                ResourcesManager.getResourcesManager().submitTaskGraph(graphList.get(i));
+                //ResourcesManager.getResourcesManager().submitTaskGraph(graphList.get(i));
+                ResourcesManager.getResourcesManager().submitTaskGraph(graphFactory.get(i).poll());
                 nextTime[i] += period[i];
             }
         }

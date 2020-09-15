@@ -19,7 +19,15 @@ public class TaskGraph {
     LinkedList<Task> globalTaskList;
 
     public int graphId;
+    public double submitTime;
     public String graphName;
+
+    public void setId(int id){
+        this.graphId = id;
+    }
+    public void setSubmitTime(double submitTime){
+        this.submitTime = submitTime;
+    }
 
     public LinkedList<Integer> dependencyGraph = new LinkedList<>();
 

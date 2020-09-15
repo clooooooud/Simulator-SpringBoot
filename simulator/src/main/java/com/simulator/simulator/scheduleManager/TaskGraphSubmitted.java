@@ -32,27 +32,33 @@ public class TaskGraphSubmitted {
 
     public TaskGraphSubmitted(TaskGraph taskGraph, int id,double submitTime) {
 //        this.taskGraph = new TaskGraph(taskGraph.taskDiagram,taskGraph.graphId,taskGraph.graphName,taskGraph.dependencyGraph);
-//        this.taskGraph = taskGraph;
+        this.taskGraph = taskGraph;
+        //try {
+        //    taskGraph.setId(id);
+        //    taskGraph.setSubmitTime(submitTime);
+        //    this.taskGraph = taskGraph;
+        //    this.taskGraph = new TaskGraph(taskGraph.taskDiagram.clone(),taskGraph.graphId,taskGraph.graphName,taskGraph.dependencyGraph);
 
-        try {
-            this.taskGraph = new TaskGraph(taskGraph.taskDiagram.clone(),taskGraph.graphId,taskGraph.graphName,taskGraph.dependencyGraph);
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+       // } catch (CloneNotSupportedException e) {
+       //     e.printStackTrace();
+       // }
 
         this.taskGraphSubmittedId = id;
         this.submitTime = submitTime;
         this.submitTTI = submitTime/50000;
-        ddl = TaskManager.getInstance().getDdl()[this.taskGraph.graphId] + submitTTI;
+        //ddl = TaskManager.getInstance().getDdl()[this.taskGraph.graphId] + submitTTI;
         taskGraphStatus = -1;
 
-        LinkedList<Task> globalTaskList = this.taskGraph.globalTaskList;
+//        LinkedList<Task> globalTaskList = this.taskGraph.globalTaskList;
+/*
         for(int i = 0;i < globalTaskList.size();i++){
             Task t = globalTaskList.get(i);
             t.graphDdl = ddl;
             t.submittedGraphId = id;
             t.submittedTTI = (int)submitTTI;
         }
+
+ */
 
         System.out.println(taskGraph.graphName + "  提交：" + submitTTI);
     }

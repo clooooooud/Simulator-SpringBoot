@@ -15,9 +15,13 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.LinkedList;
+import java.util.Queue;
+import com.simulator.simulator.timeCnter.GraphGenerator;
 
 public class Main {
     public static void main(String[] args){
@@ -64,7 +68,10 @@ public class Main {
         }
         //提交任务,改为按照时序提交
 //        resourcesManager.submitTaskGraph(TaskManager.getInstance().getTaskGraph(1).getTaskDiagram());
-        threadPool.execute(new NewTimer());
+
+        Queue<Integer> q = new LinkedList<Integer>();;
+        //threadPool.execute(new GraphGenerator(q));
+        threadPool.execute(new NewTimer(q));
 
         System.out.println("===========================================================================================================================");
     }

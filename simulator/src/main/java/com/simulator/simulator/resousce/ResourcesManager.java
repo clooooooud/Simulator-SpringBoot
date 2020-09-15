@@ -147,7 +147,8 @@ public class ResourcesManager extends Thread{
     synchronized public void submitTaskGraph(TaskGraph taskGraph){
 
         TaskGraphSubmitted taskGraphSubmitted = new TaskGraphSubmitted(taskGraph, submitedGraphNum++, ((double)System.currentTimeMillis()-(double)NewTimer.getBeginTime()));
-//        for (Task t:taskGraphSubmitted.getTaskGraph().getGlobalTaskList()){
+
+        //        for (Task t:taskGraphSubmitted.getTaskGraph().getGlobalTaskList()){
 //            System.out.println(t.graphDdl);
 //        }
 
