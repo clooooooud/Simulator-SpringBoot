@@ -32,7 +32,6 @@ public class UppaalReadUtil {
             Iterator<Element> graphIterator = read.getRootElement().elementIterator();
 
             while (graphIterator.hasNext()){
-                //graph
                 Element graph = graphIterator.next();
 //                System.out.println(graph.getName());
                 int graphId = Integer.parseInt((String)graph.attribute("id").getData());
@@ -95,7 +94,6 @@ public class UppaalReadUtil {
                      *          <data_inst_idx value="0" />
                      */
                     while(proc_itemsIterator != null && proc_itemsIterator.hasNext()){
-                        //==================================================================================================
                         //一个Data模板（有多个实例）
                         Element proc_item = proc_itemsIterator.next();
                         String data_name = (String)proc_item.attribute("data_name").getData();
@@ -120,25 +118,39 @@ public class UppaalReadUtil {
                             int job_inst_idx = Integer.parseInt((String) data_inst.attribute("job_inst_idx").getData());
                             int total_size = Integer.parseInt((String) data_inst.attribute("total_size").getData());
 
-                            LinkedList<Integer> data_inst_idx = new LinkedList<>();
-                            Iterator<Element> data_inst_idxIterator = data_inst.elementIterator();
-                            while (data_inst_idxIterator.hasNext()){
-                                Element data_inst_idx_1 = data_inst_idxIterator.next();
-                                int value = Integer.parseInt((String)data_inst_idx_1.attribute("value").getData());
-                                data_inst_idx.add(value);
+                            String data_inst_idx_1 = (String) data_inst.attribute("data_inst_idx").getData();
 
+                            LinkedList<Integer> data_inst_idx = new LinkedList<>();
+
+                            for (int i = 0; i < data_inst_idx_1.length(); i++) {
+                                char item = data_inst_idx_1.charAt(i);
+                                if(item!=','){
+                                    data_inst_idx.add(item-'0');
+                                }
+                                //System.out.println(String.valueOf(item));
+                            }
+
+//                            Iterator<Element> data_inst_idxIterator = data_inst.elementIterator();
+//                            while (data_inst_idxIterator.hasNext()){
+//                                Element data_inst_idx_1 = data_inst_idxIterator.next();
+//                                int value = Integer.parseInt((String)data_inst_idx_1.attribute("value").getData());
+//                                data_inst_idx.add(value);
+//
+//                            }
+                            for(int value:data_inst_idx){
                                 //创建多个dataIns
                                 DataInstance dataInstance = new DataInstance(data_name, mov_dir, job_inst_idx, total_size, value);
                                 //把数据实例放入对应的任务实例
                                 Task taskIns = TaskList.get(job_inst_idx);
                                 if(mov_dir == 0){
                                     taskIns.getDataInsIn().add(dataInstance);
-                                    //======================
-                                    System.out.println("111111111111111111111111");
+//                                    System.out.println(11);
                                 }else {
                                     taskIns.getDataInsOut().add(dataInstance);
+//                                    System.out.println(22);
                                 }
                             }
+
                             DataForTask dataForTask = new DataForTask(data_name, mov_dir, job_inst_idx, total_size, data_inst_idx);
                             Task taskIns = TaskList.get(job_inst_idx);
                             if(mov_dir == 0){
@@ -188,6 +200,7 @@ public class UppaalReadUtil {
         } catch (DocumentException e) {
             e.printStackTrace();
         }
+        System.out.println("finish load");
         return taskGraphList;
     }
 
