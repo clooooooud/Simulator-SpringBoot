@@ -1,11 +1,13 @@
 package com.simulator.simulator.scheduleManager;
 
 import com.simulator.simulator.XMLLoader.Util.UppaalReadUtil;
+import com.simulator.simulator.XMLLoader.task.DataInstance;
 import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.XMLLoader.task.TaskDiagram;
 import com.simulator.simulator.resousce.ResourcesManager;
 import com.simulator.simulator.scheduleAlgorithm.FIFO;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -36,6 +38,17 @@ public class TaskGraph {
         globalTaskList = taskDiagram.getGlobalTaskList();
         //生产taskDiagram的依赖表
         taskDiagram.getDiagramByInstance();
+
+        this.graphId = graphId;
+        this.graphName = graphName;
+        this.dependencyGraph = dependencyGraph;
+    }
+
+    public TaskGraph(TaskDiagram taskDiagram, int graphId, String graphName,LinkedList<Integer> dependencyGraph, HashMap<DataInstance, Integer> outMap) {
+        this.taskDiagram = taskDiagram;
+        globalTaskList = taskDiagram.getGlobalTaskList();
+        //生产taskDiagram的依赖表
+        taskDiagram.getDiagramByInstanceAndMap(outMap);
 
         this.graphId = graphId;
         this.graphName = graphName;

@@ -10,6 +10,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -32,6 +33,7 @@ public class UppaalReadUtil {
             Iterator<Element> graphIterator = read.getRootElement().elementIterator();
 
             while (graphIterator.hasNext()){
+                HashMap<DataInstance, Integer> outMap = new HashMap<>();
                 Element graph = graphIterator.next();
 //                System.out.println(graph.getName());
                 int graphId = Integer.parseInt((String)graph.attribute("id").getData());
@@ -147,6 +149,7 @@ public class UppaalReadUtil {
 //                                    System.out.println(11);
                                 }else {
                                     taskIns.getDataInsOut().add(dataInstance);
+                                    outMap.put(dataInstance,taskIns.job_inst_idx);
 //                                    System.out.println(22);
                                 }
                             }
@@ -198,7 +201,9 @@ public class UppaalReadUtil {
 //                    System.out.println(33);
                 }
                 TaskDiagram taskDiagram = new TaskDiagram(GlobalTaskList, modelTaskList, dataModelList);
-                TaskGraph taskManager = new TaskGraph(taskDiagram, graphId, graphName,new LinkedList<>());
+              //  TaskGraph taskManager = new TaskGraph(taskDiagram, graphId, graphName,new LinkedList<>());
+                TaskGraph taskManager = new TaskGraph(taskDiagram, graphId, graphName,new LinkedList<>(), outMap);
+
                 taskGraphList.add(taskManager);
 //                System.out.println(44);
             }
