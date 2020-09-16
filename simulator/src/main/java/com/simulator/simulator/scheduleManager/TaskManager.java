@@ -8,9 +8,12 @@ import com.simulator.simulator.timeCnter.GraphGenerator;
 import com.simulator.simulator.timeCnter.NewTimer;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 管理当前的所有任务图，不一定所有都被提交，有的可能被重复提交
@@ -19,7 +22,8 @@ public class TaskManager {
 
     /** graph集合 */
     LinkedList<TaskGraph> graphList= new LinkedList<>();
-    LinkedList<Queue<TaskGraph>> graphFactory = new LinkedList<>();
+    /** 图生产工厂*/
+    List<Queue<TaskGraph>> graphFactory = new CopyOnWriteArrayList<>();
 
     /**
      * period:图的周期
@@ -38,7 +42,7 @@ public class TaskManager {
 
         for(int i = 0;i < graphList.size();i++){
             nextTime[i] = 0;
-            Queue<TaskGraph> q = new LinkedList<>();
+            Queue<TaskGraph> q = new LinkedBlockingQueue<>();
             graphFactory.add(q);
         }
         System.out.println("d"+graphFactory.size());

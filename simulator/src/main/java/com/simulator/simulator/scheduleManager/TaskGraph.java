@@ -34,7 +34,25 @@ public class TaskGraph {
     public TaskGraph(TaskDiagram taskDiagram, int graphId, String graphName,LinkedList<Integer> dependencyGraph) {
         this.taskDiagram = taskDiagram;
         globalTaskList = taskDiagram.getGlobalTaskList();
+        //生产taskDiagram的依赖表
         taskDiagram.getDiagramByInstance();
+
+        this.graphId = graphId;
+        this.graphName = graphName;
+        this.dependencyGraph = dependencyGraph;
+    }
+
+    /**
+     * flag标志是否提供给dependencyGraph
+     * @param taskDiagram
+     * @param graphId
+     * @param graphName
+     * @param dependencyGraph
+     * @param flag
+     */
+    public TaskGraph(TaskDiagram taskDiagram, int graphId, String graphName,LinkedList<Integer> dependencyGraph,boolean flag) {
+        this.taskDiagram = taskDiagram;
+        globalTaskList = taskDiagram.getGlobalTaskList();
 
         this.graphId = graphId;
         this.graphName = graphName;

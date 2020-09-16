@@ -66,7 +66,7 @@ public class OffChipMem implements GraphSchedule{
 
 //        System.out.println(taskDiagram.getTaskDependencies().size());
         LinkedList<Integer> dependentTask = taskDiagram.getTaskDependencies().get(task.getJob_inst_idx());
-        LinkedList<DataInstance> dataIn = task.getDataInsIn();
+        List<DataInstance> dataIn = task.getDataInsIn();
         LinkedList<Task> globalTaskList  = taskDiagram.getGlobalTaskList();
 
         clearClusterNode();

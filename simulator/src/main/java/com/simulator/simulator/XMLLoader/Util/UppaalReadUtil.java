@@ -118,15 +118,14 @@ public class UppaalReadUtil {
                             int job_inst_idx = Integer.parseInt((String) data_inst.attribute("job_inst_idx").getData());
                             int total_size = Integer.parseInt((String) data_inst.attribute("total_size").getData());
 
-                            String data_inst_idx_1 = (String) data_inst.attribute("data_inst_idx").getData();
+                            String data_inst_idx_str = (String) data_inst.attribute("data_inst_idx").getData();
 
                             LinkedList<Integer> data_inst_idx = new LinkedList<>();
 
-                            for (int i = 0; i < data_inst_idx_1.length(); i++) {
-                                char item = data_inst_idx_1.charAt(i);
-                                if(item!=','){
-                                    data_inst_idx.add(item-'0');
-                                }
+                            String[] strings = data_inst_idx_str.split(",");
+
+                            for (int i = 0; i < strings.length; i++) {
+                                data_inst_idx.add(Integer.parseInt(strings[i]));
                                 //System.out.println(String.valueOf(item));
                             }
 
@@ -138,6 +137,7 @@ public class UppaalReadUtil {
 //
 //                            }
                             for(int value:data_inst_idx){
+//                                System.out.println(data_inst_idx.size());
                                 //创建多个dataIns
                                 DataInstance dataInstance = new DataInstance(data_name, mov_dir, job_inst_idx, total_size, value);
                                 //把数据实例放入对应的任务实例
@@ -162,7 +162,9 @@ public class UppaalReadUtil {
                         }
                     }
                     GlobalTaskList.addAll(TaskList);
+//                    System.out.println(11);
                 }
+//                System.out.println(22);
 
                 //获取Data-----------
                 Element data_info = read.getRootElement().element("data_info");
@@ -178,6 +180,7 @@ public class UppaalReadUtil {
                      *  <consumer name="Task2" />
                      *
                      */
+//                    System.out.println(33);
                     Element dataElement = dataIterator.next();
                     int consumer_count = Integer.parseInt((String) dataElement.attribute("consumer_count").getData());
                     Boolean is_global = (Boolean) dataElement.attribute("is_global").getData().equals("True");
@@ -192,13 +195,18 @@ public class UppaalReadUtil {
 
                     Data data = new Data(consumer_count, is_global, mem_type, name, producer, consumerName);
                     dataModelList.add(data);
+//                    System.out.println(33);
                 }
                 TaskDiagram taskDiagram = new TaskDiagram(GlobalTaskList, modelTaskList, dataModelList);
                 TaskGraph taskManager = new TaskGraph(taskDiagram, graphId, graphName,new LinkedList<>());
                 taskGraphList.add(taskManager);
+//                System.out.println(44);
             }
         } catch (DocumentException e) {
+            System.out.println("err");
             e.printStackTrace();
+        }finally {
+//            System.out.println(55);
         }
         System.out.println("finish load");
         return taskGraphList;

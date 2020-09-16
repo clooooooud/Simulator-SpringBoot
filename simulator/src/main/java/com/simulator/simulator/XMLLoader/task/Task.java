@@ -4,7 +4,9 @@ import com.simulator.simulator.report.TaskReport;
 import com.simulator.simulator.scheduleManager.TaskManager;
 import com.simulator.simulator.timeCnter.NewTimer;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +55,7 @@ public class Task extends Thread{
     public LinkedList<DataForTask> dataOut = new LinkedList<>();
 
     //输入输出的data实例
-    public LinkedList<DataInstance> dataInsIn = new LinkedList<>();
+    public List<DataInstance> dataInsIn = new LinkedList<>();
     public LinkedList<DataInstance> dataInsOut = new LinkedList<>();
 
     public static int id = 0;
@@ -118,7 +120,7 @@ public class Task extends Thread{
         return isFinish;
     }
 
-    public LinkedList<DataInstance> getDataInsIn() {
+    public List<DataInstance> getDataInsIn() {
         return dataInsIn;
     }
 

@@ -1,6 +1,7 @@
 package com.simulator.simulator.XMLLoader.task;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class TaskDiagram {
 
@@ -105,6 +106,7 @@ public class TaskDiagram {
 //        int[][] dag = new int[taskNum+1][taskNum+1];
         LinkedList<LinkedList<Integer>> dag = new LinkedList<>();
 
+        System.out.println("生成dag" + taskNum);
         for(int i = 0;i < taskNum;i++){
             Task task = GlobalTaskList.get(i);
             //dependency of task i
@@ -113,9 +115,11 @@ public class TaskDiagram {
 //            int index = 0;
 
             //task的输入datains
-            LinkedList<DataInstance> dataIn = task.getDataInsIn();
+            List<DataInstance> dataIn = task.getDataInsIn();
+//            System.out.println(dataIn.size());
             for(DataInstance d:dataIn){
                 for(int j = 0;j < taskNum;j++){
+//                    System.out.println(j);
                     if(i == j)continue;
                     int dependencyId = GlobalTaskList.get(j).getJob_inst_idx();
                     //任务输出的数据实例
@@ -134,6 +138,7 @@ public class TaskDiagram {
                 }
             }
             taskDependencies.add(singleTaskDependenciesList);
+            System.out.println("生成序号" + i);
         }
 
 //        taskInstanceDag.append("{").append('\n');
@@ -154,6 +159,7 @@ public class TaskDiagram {
 //        taskInstanceDag.append("};").append('\n');
 
         StringBuilder taskInstanceDag = new StringBuilder();
+        System.out.println("生成dag结束" + taskNum);
         return "图塞不下";
     }
 
