@@ -94,6 +94,7 @@ public class TaskGraph {
 
     synchronized public boolean checkDependency(Task task){
         int taskId = task.job_inst_idx;
+//        System.out.println(taskDiagram.getTaskDependencies().size());
         LinkedList<Integer> dependencies = taskDiagram.getTaskDependencies().get(taskId);
 
 //        taskDiagram.report();
@@ -110,7 +111,7 @@ public class TaskGraph {
         for(int dependencyId : dependencies){
             if(!globalTaskList.get(dependencyId).ifFinish()){
 //              if(task.name.equals("Task2"))System.out.println(task.name + "|"+taskId + " wait for " + globalTaskList.get(dependencyId).name+"("+globalTaskList.get(dependencyId).job_inst_idx_inside +")");
-                System.out.println(task.taskName + "|"+taskId + " wait for " + globalTaskList.get(dependencyId).taskName+"("+globalTaskList.get(dependencyId).job_inst_idx_inside +")");
+//                System.out.println(task.taskName + "|"+taskId + " wait for " + globalTaskList.get(dependencyId).taskName+"("+globalTaskList.get(dependencyId).job_inst_idx_inside +")");
                 return false;
             }
         }

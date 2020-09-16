@@ -38,7 +38,10 @@ public class TaskDiagram {
             dataModelListClone.add(d.clone());
         }
 
-        return new TaskDiagram(globalTaskListClone,modelTaskListClone,dataModelListClone);
+        TaskDiagram taskDiagram = new TaskDiagram(globalTaskListClone, modelTaskListClone, dataModelListClone);
+        taskDiagram.taskDependencies = this.taskDependencies;
+
+        return taskDiagram;
     }
 
     public LinkedList<LinkedList<Integer>> getTaskDependencies() {
@@ -169,61 +172,23 @@ public class TaskDiagram {
          * 以实例为单位构建dag
          */
         int taskNum = GlobalTaskList.size();
-//        int[][] dag = new int[taskNum+1][taskNum+1];
         LinkedList<LinkedList<Integer>> dag = new LinkedList<>();
 
         System.out.println("生成dag" + taskNum);
         for(int i = 0;i < taskNum;i++){
             Task task = GlobalTaskList.get(i);
-            //dependency of task i
             LinkedList<Integer> singleTaskDependenciesList = new LinkedList<Integer>();
-            //标记依赖有几个了
-//            int index = 0;
-
-            //task的输入datains
             List<DataInstance> dataIn = task.getDataInsIn();
-//            System.out.println(dataIn.size());
             for(DataInstance d:dataIn){
                 if(outMap.containsKey(d)) {
                     int dependencyId = outMap.get(d);
                     singleTaskDependenciesList.add(dependencyId);
                 }
-                /*
-                for(int j = 0;j < taskNum;j++){
-//                    System.out.println(j);
-                    if(i == j)continue;
-                    int dependencyId = GlobalTaskList.get(j).getJob_inst_idx();
-                    //任务输出的数据实例
-                    LinkedList<DataInstance> taskDataInsOut = GlobalTaskList.get(j).getDataInsOut();
-                    if(taskDataInsOut.contains(d)){
-                        //save in taskDependencies
-                        singleTaskDependenciesList.add(dependencyId);
-//                        if(task.name.equals("Task2") && GlobalTaskList.get(dependencyId).name.equals("Task8")){
-//                            System.out.println(d.dataName);
-//                        }
-                    }
-                }    */
             }
             taskDependencies.add(singleTaskDependenciesList);
-            System.out.println("生成序号" + i);
+//            System.out.println("生成序号" + i);
         }
-
-//        taskInstanceDag.append("{").append('\n');
-//        for(int i = 0;i <taskNum + 1;i++){
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("{{");
-//            for(int j = 0;j < taskNum +1;j++){
-//                if(j != taskNum){
-//                    sb.append(dag[i][j]).append(",");
-//                }else {
-//                    sb.append(dag[i][j]);
-//                    if(i != taskNum)sb.append("}},");
-//                    else sb.append("}}");
-//                }
-//            }
-//            taskInstanceDag.append(sb).append('\n');
-//        }
-//        taskInstanceDag.append("};").append('\n');
+        System.out.println(taskDependencies.size());
 
         StringBuilder taskInstanceDag = new StringBuilder();
         System.out.println("生成dag结束" + taskNum);

@@ -1,6 +1,5 @@
 package com.simulator.simulator.scheduleAlgorithm.graphSchedule;
 
-import com.simulator.simulator.XMLLoader.task.DataForTask;
 import com.simulator.simulator.XMLLoader.task.DataInstance;
 import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.XMLLoader.task.TaskDiagram;
@@ -65,6 +64,7 @@ public class OffChipMem implements GraphSchedule{
         if(task.clusterId != -1)return task.clusterId;
 
 //        System.out.println(taskDiagram.getTaskDependencies().size());
+        if(taskDiagram.getTaskDependencies().size() == 0)return 0;
         LinkedList<Integer> dependentTask = taskDiagram.getTaskDependencies().get(task.getJob_inst_idx());
         List<DataInstance> dataIn = task.getDataInsIn();
         LinkedList<Task> globalTaskList  = taskDiagram.getGlobalTaskList();
@@ -103,7 +103,6 @@ public class OffChipMem implements GraphSchedule{
         ClusterNode clusterNode = clusterMap.get(task.clusterId);
         clusterNode.load += task.cost;
         return task.clusterId;
-
     }
 
     private void clearClusterNode(){

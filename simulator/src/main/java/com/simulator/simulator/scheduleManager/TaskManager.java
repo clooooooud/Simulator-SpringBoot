@@ -37,6 +37,7 @@ public class TaskManager {
 
     public TaskManager() {
         graphList = UppaalReadUtil.uppaalTaskReader();
+        System.out.println("finish load");
         period = new double[graphList.size()];
         nextTime = new double[graphList.size()];
 
@@ -49,6 +50,7 @@ public class TaskManager {
         ExecutorService threadPool = Executors.newFixedThreadPool(2);
         threadPool.execute(new GraphGenerator(graphList, graphFactory));
     }
+
     public boolean isReady(){
         for(int i = 0;i < graphFactory.size();i++){
             if(graphFactory.get(i).size() == 0) return false;

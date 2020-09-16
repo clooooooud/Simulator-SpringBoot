@@ -13,6 +13,7 @@ public class GraphGenerator extends Thread{
 
     public List<Queue<TaskGraph>> graphFactory;
     public GraphGenerator(LinkedList<TaskGraph> gL, List<Queue<TaskGraph>> gF){
+        System.out.println("工厂启动");
         graphList = gL;
         graphFactory = gF;
     }
