@@ -105,13 +105,13 @@ public class TaskDiagram {
          */
         int taskNum = GlobalTaskList.size();
 //        int[][] dag = new int[taskNum+1][taskNum+1];
-        LinkedList<LinkedList<Integer>> dag = new LinkedList<>();
+//        LinkedList<LinkedList<Integer>> dag = new LinkedList<>();
 
         System.out.println("生成dag" + taskNum);
         for(int i = 0;i < taskNum;i++){
             Task task = GlobalTaskList.get(i);
             //dependency of task i
-            LinkedList<Integer> singleTaskDependenciesList = new LinkedList<Integer>();
+            LinkedList<Integer> singleTaskDependenciesList = new LinkedList<>();
             //标记依赖有几个了
 //            int index = 0;
 

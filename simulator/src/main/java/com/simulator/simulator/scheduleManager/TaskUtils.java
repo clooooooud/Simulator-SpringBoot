@@ -28,7 +28,7 @@ public class TaskUtils {
         for(Cluster cluster : ResourcesManager.getResourcesManager().getClusterList()){
             List<DSP> dspList = cluster.getDspList();
             for(DSP d : dspList){
-                System.out.println(d.getDspId() + "||  "+ d.getQueue().size()+ "||  "+ d.candidateQueue.size());
+                System.out.println(d.getDspId() + "||  "+ d.getQueue().size()+ "||  "+ d.candidateList.size());
             }
         }
     }
@@ -37,13 +37,7 @@ public class TaskUtils {
     /**
      * 启动柜DSP排序机制
      */
-    public void DSPsort(){
-        try {
-            TimeUnit.MILLISECONDS.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+    synchronized public void DSPsort(){
         for(Cluster cluster : ResourcesManager.getResourcesManager().getClusterList()){
             List<DSP> dspList = cluster.getDspList();
             for(DSP d : dspList){
