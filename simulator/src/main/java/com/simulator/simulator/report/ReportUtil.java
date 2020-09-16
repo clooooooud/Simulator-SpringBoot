@@ -106,7 +106,6 @@ public class ReportUtil {
      * 8.	MEM使用峰值
      * 9.	MEM使用实时值
      */
-
     static String reportV1(){
         ResourcesManager resourcesManager = ResourcesManager.getResourcesManager();
         StringBuilder stringBuilder = new StringBuilder();

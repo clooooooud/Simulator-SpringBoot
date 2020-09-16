@@ -9,6 +9,7 @@ import com.simulator.simulator.XMLLoader.task.DataInstance;
 import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.XMLLoader.task.TaskDiagram;
 import com.simulator.simulator.XMLLoader.task.TaskStatus;
+import com.simulator.simulator.scheduleAlgorithm.AlgorithmManager;
 import com.simulator.simulator.scheduleAlgorithm.graphSchedule.OffChipMem;
 import com.simulator.simulator.scheduleManager.TaskGraph;
 import com.simulator.simulator.scheduleManager.TaskGraphSubmitted;
@@ -36,7 +37,6 @@ public class ResourcesManager extends Thread{
     /** 图候选队列与执行队列 */
     List<TaskGraphSubmitted> graphList = new CopyOnWriteArrayList<>();
     List<TaskGraphSubmitted> candidateGraphList= new CopyOnWriteArrayList<>();
-
 
     /**
      * 记录已提交的graph
@@ -209,47 +209,48 @@ public class ResourcesManager extends Thread{
 
     int indexTest = 0;
     private void execute(Task task){
+        Cluster cluster = null;
+        switch (AlgorithmManager.resourceManageAlgorithmId){
+            case 0:
+                //轮训
+                cluster = clusterList.get((indexTest++)%16);
+                cluster.submit(task);
+                break;
+            case 1:
+                //片外访存
+                cluster = clusterList.get(task.clusterId);
+                cluster.submit(task);
+                break;
+            case 2:
+                //贪心
+                int[] clusterCnt = new int[clusterList.size()];
 
-        //负载均衡
-//        Arrays.sort(dsps,(d1,d2)->{
-//            return d1.getQueue().size() - d2.getQueue().size();
-//        });
-//
-//        dsps[0].submit(task);
+                for(DataInstance d:task.getDataInsIn()){
+                    for(Cluster c:clusterList){
+                        if(c.checkData(d)){
+                            clusterCnt[c.clusterId] += d.total_size;
+                            break;
+                        }
+                    }
+                }
+                int tmpIdx = -1,tmpSize = 0;
+                for(int i = 0;i < clusterList.size();i++){
+                    if(clusterCnt[i] > tmpSize){
+                        tmpSize = clusterCnt[i];
+                        tmpIdx = i;
+                    }
+                }
+                if(tmpIdx == -1)tmpIdx = (indexTest++)%2;
 
-        //轮训
-        Cluster cluster = clusterList.get((indexTest++)%16);
+                cluster = clusterList.get(tmpIdx);
+                cluster.submit(task);
+            default:
+                if(cluster == null) System.out.println("请指定算法");
+        }
 
-        //全部在1
-//        Cluster cluster = clusterList.get(0);
 
 
-        //片外访存
-//        Cluster cluster = clusterList.get(task.clusterId);
-        cluster.submit(task);
 
-        //贪心
-//        int[] clusterCnt = new int[clusterList.size()];
-//
-//        for(DataInstance d:task.getDataInsIn()){
-//            for(Cluster c:clusterList){
-//                if(c.checkData(d)){
-//                    clusterCnt[c.clusterId] += d.total_size;
-//                    break;
-//                }
-//            }
-//        }
-//        int tmpIdx = -1,tmpSize = 0;
-//        for(int i = 0;i < clusterList.size();i++){
-//            if(clusterCnt[i] > tmpSize){
-//                tmpSize = clusterCnt[i];
-//                tmpIdx = i;
-//            }
-//        }
-//        if(tmpIdx == -1)tmpIdx = (indexTest++)%2;
-//
-//        Cluster cluster = clusterList.get(tmpIdx);
-//        cluster.submit(task);
 
     }
 

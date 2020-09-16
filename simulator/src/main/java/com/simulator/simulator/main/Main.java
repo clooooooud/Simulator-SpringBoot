@@ -7,6 +7,7 @@ import com.simulator.simulator.resousce.Cluster;
 import com.simulator.simulator.resousce.DMA;
 import com.simulator.simulator.resousce.DSP;
 import com.simulator.simulator.resousce.ResourcesManager;
+import com.simulator.simulator.scheduleAlgorithm.AlgorithmManager;
 import com.simulator.simulator.scheduleAlgorithm.FIFO;
 import com.simulator.simulator.scheduleManager.TaskManager;
 import com.simulator.simulator.scheduleManager.TaskUtils;
@@ -45,6 +46,10 @@ public class Main {
         TaskManager.getInstance().setDependency(1,4);
         TaskManager.getInstance().setDependency(2,4);
         TaskManager.getInstance().setDependency(3,4);
+
+        //指定算法
+        AlgorithmManager.taskScheduleAlgorithmId = 0;
+        AlgorithmManager.resourceManageAlgorithmId = 0;
 
 
         System.out.println(TaskManager.getInstance());

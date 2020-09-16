@@ -3,12 +3,14 @@ package com.simulator.simulator.resousce;
 import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.report.DSPReport;
 import com.simulator.simulator.report.ReportInterFace;
+import com.simulator.simulator.scheduleAlgorithm.AlgorithmManager;
 import com.simulator.simulator.timeCnter.NewTimer;
 import com.simulator.simulator.timeCnter.myTime;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 
@@ -52,7 +54,7 @@ public class DSP extends Thread implements ReportInterFace {
 //        }
 //    });
     private BlockingQueue<Task> queue = new ArrayBlockingQueue<Task>(200);
-    public BlockingQueue<Task> candidateQueue = new ArrayBlockingQueue<Task>(200);
+    public List<Task> candidateList = new CopyOnWriteArrayList<>();
     private LinkedList<Integer> test = new LinkedList<>();
 
     /**
@@ -160,13 +162,13 @@ public class DSP extends Thread implements ReportInterFace {
     public void run() {
         while(run){
             while(true){
-                if(!queue.isEmpty() || !candidateQueue.isEmpty()){
+                if(!queue.isEmpty() || !candidateList.isEmpty()){
 //                    System.out.println(queue.size() + "||---------" + dspId);
                     try {
                         if(queue.isEmpty()){
                             TimeUnit.SECONDS.sleep(1);
-                            queue.addAll(candidateQueue);
-                            candidateQueue.clear();
+                            queue.addAll(candidateList);
+                            candidateList.clear();
                         }
                         Task task = queue.take();
 
@@ -212,18 +214,24 @@ public class DSP extends Thread implements ReportInterFace {
 
     synchronized public void submit(Task task) {
         try {
-//            System.out.println("DSP submit");
+
             totalCost += task.cost;
             curCost += task.cost;
-//            System.out.println(task);
-//            queue.put(task);
-            candidateQueue.put(task);
 
-//            System.out.println(queue.size());
+            //入队抢占机制
+            switch (AlgorithmManager.taskScheduleAlgorithmId){
+                case 0:
+                    candidateList.add(task);
+                    break;
+                case 1:
+                    candidateList.add(task);
+                    int i = 0;
+                    for(;i < candidateList.size();i++){
+                        if(task.graphDdl >= candidateList.get(i).graphDdl)break;
+                    }
+                    candidateList.add(i,task);
+            }
 
-//            if(task.taskName.equals("task83")&& task.job_inst_idx == 0){
-//                System.out.println("dsp");
-//            }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("===================提交失败");

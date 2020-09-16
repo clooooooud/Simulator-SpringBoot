@@ -129,6 +129,8 @@ public class UppaalReadUtil {
                                 //System.out.println(String.valueOf(item));
                             }
 
+//                            data_inst_idx.clear();
+
 //                            Iterator<Element> data_inst_idxIterator = data_inst.elementIterator();
 //                            while (data_inst_idxIterator.hasNext()){
 //                                Element data_inst_idx_1 = data_inst_idxIterator.next();
@@ -136,9 +138,10 @@ public class UppaalReadUtil {
 //                                data_inst_idx.add(value);
 //
 //                            }
+
+                            //建立map
                             for(int value:data_inst_idx){
-//                                System.out.println(data_inst_idx.size());
-                                //创建多个dataIns
+                                //创建多个dataIns(key)
                                 DataInstance dataInstance = new DataInstance(data_name, mov_dir, job_inst_idx, total_size, value);
                                 //把数据实例放入对应的任务实例
                                 Task taskIns = TaskList.get(job_inst_idx);
