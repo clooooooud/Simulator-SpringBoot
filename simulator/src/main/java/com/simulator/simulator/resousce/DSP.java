@@ -191,7 +191,7 @@ public class DSP extends Thread implements ReportInterFace {
                         execute(task);
                         writeBack(task);
                         task.finishTask();
-                        ResourcesManager.getResourcesManager().updateQueue();
+//                        ResourcesManager.getResourcesManager().updateQueue();
 
                         //执行完毕，计算运行时间（后续封装）
                         totalBusyTime += System.currentTimeMillis() - beginTime;

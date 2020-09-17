@@ -266,7 +266,7 @@ public class ResourcesManager extends Thread{
 
                 execute(task);
             }
-//            updateQueue();
+            updateQueue();
         }
     }
 
