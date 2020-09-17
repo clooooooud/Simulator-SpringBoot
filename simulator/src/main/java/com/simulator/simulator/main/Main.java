@@ -54,7 +54,7 @@ public class Main {
 //            threadPool.execute(t);
 //        }
         ResourcesManager resourcesManager = ResourcesManager.getResourcesManager();
-        resourcesManager.setClusterNum(16);
+        resourcesManager.setClusterNum(64);
 
 
 
