@@ -131,6 +131,9 @@ public class Task extends Thread{
     @Override
     public Task clone() throws CloneNotSupportedException {
         Task task = new Task(taskName, knrlType, instCnt, cost, property, job_inst_idx_inside, taskGraphId,job_inst_idx);
+        task.dataInsOut = this.dataInsOut;
+        task.dataInsIn = this.dataInsIn;
+        task.clusterId = this.clusterId;
         return task;
     }
 

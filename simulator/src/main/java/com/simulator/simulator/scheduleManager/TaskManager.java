@@ -69,6 +69,10 @@ public class TaskManager {
         this.period = period;
     }
 
+    public void setNextTime(double[] nextTime) {
+        this.nextTime = nextTime;
+    }
+
     public static TaskManager getInstance(){
         if(taskGraph == null){
             synchronized (TaskManager.class){
@@ -91,6 +95,9 @@ public class TaskManager {
                 //ResourcesManager.getResourcesManager().submitTaskGraph(graphList.get(i));
                 ResourcesManager.getResourcesManager().submitTaskGraph(graphFactory.get(i).poll());
                 nextTime[i] += period[i];
+//                System.out.println(i + "到达提交时间");
+            }else{
+//                System.out.println(i + "没到达提交时间");
             }
         }
     }

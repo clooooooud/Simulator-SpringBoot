@@ -132,7 +132,6 @@ public class DSP extends Thread implements ReportInterFace {
             double sleepTime = (double)task.cost/DSPSpeed;
             TimeUnit.MILLISECONDS.sleep((int)sleepTime/10);
 
-
 //            TimeUnit.SECONDS.sleep(1);
 
 //            if(task.taskName.equals("Task83"))System.out.println(task.job_inst_idx + "finish by:" + dspId + "in " + Thread.currentThread().getName());

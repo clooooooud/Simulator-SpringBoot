@@ -30,6 +30,7 @@ public class GraphGenerator extends Thread{
                         TaskGraph newTaskGraph = new TaskGraph(taskGraph.getTaskDiagram().clone(),taskGraph.graphId,taskGraph.graphName,taskGraph.dependencyGraph,true);
                         //System.out.println("Factory generation: "+i);
                         this.graphFactory.get(i).offer(newTaskGraph);
+//                        System.out.println("图"+i+"生产完毕");
                     } catch (CloneNotSupportedException e) {
                         e.printStackTrace();
                     }

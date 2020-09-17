@@ -77,7 +77,7 @@ public class DMA extends Thread implements ReportInterFace {
             taskSubmitted.put(dmaTask);
 
             taskQueue.put(dmaTask);
-            System.out.println("submmit: "+ data);
+//            System.out.println("submmit: "+ data);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

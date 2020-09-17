@@ -155,7 +155,11 @@ public class ResourcesManager extends Thread{
         TaskDiagram taskDiagram = taskGraphSubmitted.getTaskGraph().getTaskDiagram();
         LinkedList<Task> globalTaskList = taskDiagram.getGlobalTaskList();
 
-        schedule(taskDiagram,clusterList.size());
+//        System.out.println("before 11");
+
+        //片外访存
+//        schedule(taskDiagram,clusterList.size());
+//        System.out.println(11);
 
         if(submittedTaskGraph.size() > (int) taskGraphSubmitted.submitTTI){
             Map<Integer,TaskGraphSubmitted> taskGraphSubmittedInTTI = submittedTaskGraph.get((int) taskGraphSubmitted.submitTTI);
@@ -188,13 +192,13 @@ public class ResourcesManager extends Thread{
      * @param taskDiagram
      * @param clusterNum
      */
-    private void schedule(TaskDiagram taskDiagram,int clusterNum){
+    public void schedule(TaskDiagram taskDiagram, int clusterNum){
         OffChipMem offChipMem = new OffChipMem();
 //        offChipMem.schedule(taskDiagram,clusterNum);
         offChipMem.schedule(taskDiagram,clusterNum);
     }
 
-    public void updateQueue(){
+    synchronized public void updateQueue(){
 //        System.out.println(candidateQueue.size() + "候选队列长度");
          for(Task task:candidateQueue){
              if(!task.getTaskStatus().equals(TaskStatus.WAIT))continue;

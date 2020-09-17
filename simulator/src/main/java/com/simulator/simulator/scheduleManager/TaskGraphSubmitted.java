@@ -46,7 +46,7 @@ public class TaskGraphSubmitted {
         this.taskGraphSubmittedId = id;
         this.submitTime = submitTime;
         this.submitTTI = submitTime/50000;
-        //ddl = TaskManager.getInstance().getDdl()[this.taskGraph.graphId] + submitTTI;
+        ddl = TaskManager.getInstance().getDdl()[this.taskGraph.graphId] + submitTTI;
         taskGraphStatus = -1;
 
 //        LinkedList<Task> globalTaskList = this.taskGraph.globalTaskList;

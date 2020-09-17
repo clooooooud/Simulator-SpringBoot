@@ -144,7 +144,7 @@ public class UppaalReadUtil {
                             //建立map
                             for(int value:data_inst_idx){
                                 //创建多个dataIns(key)
-                                DataInstance dataInstance = new DataInstance(data_name, mov_dir, job_inst_idx, total_size, value);
+                                DataInstance dataInstance = new DataInstance(data_name, mov_dir, job_inst_idx, total_size/strings.length, value);
                                 //把数据实例放入对应的任务实例
                                 Task taskIns = TaskList.get(job_inst_idx);
                                 if(mov_dir == 0){

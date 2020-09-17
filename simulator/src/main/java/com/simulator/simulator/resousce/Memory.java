@@ -55,7 +55,7 @@ public class Memory {
             if(data.dataName.equals("data0") || data.dataName.equals("data7") || data.dataName.equals("data9") || data.dataName.equals("data4")){
 
             }else{
-                System.out.println(data.dataName + ":" + data.data_inst_idx + " not find");
+//                System.out.println(data.dataName + ":" + data.data_inst_idx + " not find");
             }
         }
 
@@ -102,6 +102,7 @@ public class Memory {
         transportData(data);
 
         while(curCapacity + data.total_size > capacity){
+            System.out.println(curCapacity + "||" +data.total_size);
             LRU();
         }
         map.put(data,new Object());

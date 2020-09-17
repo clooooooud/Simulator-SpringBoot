@@ -5,6 +5,7 @@ import com.simulator.simulator.XMLLoader.task.DataInstance;
 import com.simulator.simulator.XMLLoader.task.Task;
 import com.simulator.simulator.XMLLoader.task.TaskDiagram;
 import com.simulator.simulator.resousce.ResourcesManager;
+import com.simulator.simulator.scheduleAlgorithm.AlgorithmManager;
 import com.simulator.simulator.scheduleAlgorithm.FIFO;
 
 import java.util.HashMap;
@@ -39,6 +40,9 @@ public class TaskGraph {
         //生产taskDiagram的依赖表
         taskDiagram.getDiagramByInstance();
 
+
+
+
         this.graphId = graphId;
         this.graphName = graphName;
         this.dependencyGraph = dependencyGraph;
@@ -49,6 +53,10 @@ public class TaskGraph {
         globalTaskList = taskDiagram.getGlobalTaskList();
         //生产taskDiagram的依赖表
         taskDiagram.getDiagramByInstanceAndMap(outMap);
+        if(AlgorithmManager.resourceManageAlgorithmId == 1){
+            ResourcesManager resourcesManager = ResourcesManager.getResourcesManager();
+            resourcesManager.schedule(taskDiagram,resourcesManager.getClusterList().size());
+        }
 
         this.graphId = graphId;
         this.graphName = graphName;

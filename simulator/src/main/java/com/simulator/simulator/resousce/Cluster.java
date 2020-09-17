@@ -161,6 +161,9 @@ public class Cluster implements ReportInterFace {
     public void saveData(Task task) {
 
         for(DataInstance data:task.getDataInsOut()){
+            if(task.getDataInsOut().size() != 0){
+//                System.out.println("save data");
+            }
             int memId = memSchedule();
             Memory memory = memoryList.get(memId);
             memory.save(data);

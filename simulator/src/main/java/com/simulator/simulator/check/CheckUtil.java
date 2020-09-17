@@ -17,7 +17,7 @@ public class CheckUtil {
      */
     public static int accessGraphNum = 0;
     public static int denyGraphNum = 0;
-    public static double accessRate = 0;
+    public static double accessRate = 1;
 
     public static void checkGraph(){
         List<Map<Integer, TaskGraphSubmitted>> submittedTaskGraph = ResourcesManager.getResourcesManager().getSubmittedTaskGraph();
