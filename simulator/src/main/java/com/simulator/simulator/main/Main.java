@@ -27,10 +27,10 @@ import com.simulator.simulator.timeCnter.GraphGenerator;
 
 public class Main {
     public static void main(String[] args){
-        ExecutorService threadPool = Executors.newFixedThreadPool(300);
+        ExecutorService threadPool = Executors.newFixedThreadPool(350);
 
         //设置图周期
-        TaskManager.getInstance().setPeriod(new double[]{100,100,100,4,10,100});
+        TaskManager.getInstance().setPeriod(new double[]{100,100,100,4,1,100});
         TaskManager.getInstance().setDdl(new double[]{100,1.5,1.5,4,1,100});
         TaskManager.getInstance().setNextTime(new double[]{100,100,100,100,0,100});
         //设置图依赖

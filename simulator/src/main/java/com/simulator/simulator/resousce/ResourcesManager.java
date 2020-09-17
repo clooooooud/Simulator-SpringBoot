@@ -198,8 +198,8 @@ public class ResourcesManager extends Thread{
         offChipMem.schedule(taskDiagram,clusterNum);
     }
 
-    synchronized public void updateQueue(){
-        System.out.println(candidateQueue.size() + "候选队列长度");
+     public void updateQueue(){
+//        System.out.println(candidateQueue.size() + "候选队列长度");
          for(Task task:candidateQueue){
              if(!task.getTaskStatus().equals(TaskStatus.WAIT))continue;
              if(submittedTaskGraph.get(task.submittedTTI).get(task.taskGraphId).getTaskGraph().checkDependency(task)){
@@ -217,7 +217,7 @@ public class ResourcesManager extends Thread{
         switch (AlgorithmManager.resourceManageAlgorithmId){
             case 0:
                 //轮训
-                cluster = clusterList.get((indexTest++)%16);
+                cluster = clusterList.get((indexTest++)%clusterList.size());
                 cluster.submit(task);
                 break;
             case 1:

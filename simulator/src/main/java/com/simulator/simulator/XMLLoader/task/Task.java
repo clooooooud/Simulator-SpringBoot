@@ -134,6 +134,7 @@ public class Task extends Thread{
         task.dataInsOut = this.dataInsOut;
         task.dataInsIn = this.dataInsIn;
         task.clusterId = this.clusterId;
+        task.isFinish = false;
         return task;
     }
 
