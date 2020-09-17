@@ -36,7 +36,7 @@ public class Memory {
      * peakValue: 用于计算峰值
      * 当当前容量 > 容量上限：运行LRU
      */
-    public int capacity = 100000000;
+    public int capacity = 1000000;
     public int curCapacity = 0;
     public int peakValue = 0;
 
