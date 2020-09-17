@@ -199,7 +199,7 @@ public class ResourcesManager extends Thread{
     }
 
     synchronized public void updateQueue(){
-//        System.out.println(candidateQueue.size() + "候选队列长度");
+        System.out.println(candidateQueue.size() + "候选队列长度");
          for(Task task:candidateQueue){
              if(!task.getTaskStatus().equals(TaskStatus.WAIT))continue;
              if(submittedTaskGraph.get(task.submittedTTI).get(task.taskGraphId).getTaskGraph().checkDependency(task)){

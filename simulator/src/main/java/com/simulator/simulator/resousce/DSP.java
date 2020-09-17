@@ -20,7 +20,7 @@ public class DSP extends Thread implements ReportInterFace {
     private int globalTime = 0;
     private int idleTime = 0;
     private int myClusterId;
-    //单位是GHz
+    //单位是GHz,标准1.3
     private double DSPSpeed = 1.3;
 
     /**

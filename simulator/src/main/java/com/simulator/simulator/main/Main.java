@@ -27,7 +27,7 @@ import com.simulator.simulator.timeCnter.GraphGenerator;
 
 public class Main {
     public static void main(String[] args){
-        ExecutorService threadPool = Executors.newFixedThreadPool(150);
+        ExecutorService threadPool = Executors.newFixedThreadPool(300);
 
         //设置图周期
         TaskManager.getInstance().setPeriod(new double[]{100,100,100,4,10,100});
@@ -54,7 +54,7 @@ public class Main {
 //            threadPool.execute(t);
 //        }
         ResourcesManager resourcesManager = ResourcesManager.getResourcesManager();
-        resourcesManager.setClusterNum(64);
+        resourcesManager.setClusterNum(16);
 
 
 

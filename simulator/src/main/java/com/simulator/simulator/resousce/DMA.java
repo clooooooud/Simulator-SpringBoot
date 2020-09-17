@@ -53,6 +53,7 @@ class DMATask {
 public class DMA extends Thread implements ReportInterFace {
     BlockingQueue<DMATask> taskQueue = new LinkedBlockingDeque<>();
     BlockingQueue<DMATask> taskSubmitted = new LinkedBlockingDeque<>();
+    //标准：500
     int dmaSpeed = 500;
     boolean run = true;
 
